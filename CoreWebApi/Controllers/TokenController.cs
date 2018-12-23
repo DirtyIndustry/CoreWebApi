@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CoreWebApi.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -16,7 +18,6 @@ namespace CoreWebApi.Controllers
     public class TokenController : ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
-        private readonly SymmetricSecurityKey secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("a secret that needs to be at least 16 characters long"));
 
         public TokenController(ILogger<TokenController> logger)
         {
@@ -25,23 +26,20 @@ namespace CoreWebApi.Controllers
 
         // GET api/token
         [HttpGet]
-        public ActionResult Get(string login)
+        [Authorize("Valid")]
+        public ActionResult Get()
         {
-            _logger.LogDebug("User Trying to Login.");
-            if (string.IsNullOrEmpty(login))
+            _logger.LogDebug("Get Values From Token.");
+            var jti = User.FindFirst("jti")?.Value;
+            var username = User.FindFirst("sub")?.Value;
+            if (jti == null)
             {
-                return BadRequest();
+                return NotFound();
             }
-            try
-            {
-                var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(login));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest();
-            }
-            return Ok();
+
+            // save jti (and username) into database
+
+            return Ok(jti);
         }
 
         // POST api/token
@@ -53,29 +51,10 @@ namespace CoreWebApi.Controllers
 
             if (username == "张三" && password == "123")
             {
-                return new ObjectResult(GenerateToken(username));
+                return new ObjectResult(TokenOperator.GenerateToken(username));
             }
             return BadRequest();
         }
 
-        private string GenerateToken(string username)
-        {
-            var claims = new Claim[]
-            {
-                new Claim(ClaimTypes.Name, username),
-                new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
-                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
-                new Claim("department", "headquarter"),
-                new Claim("title", "boss")
-            };
-
-            var token = new JwtSecurityToken(
-                new JwtHeader(new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes("the secret that needs to be at least 16 characeters long for HmacSha256")),
-                    SecurityAlgorithms.HmacSha256)),
-                new JwtPayload(claims));
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
     }
 }

@@ -45,6 +45,39 @@ namespace CoreWebApi
                 });
             });
             #endregion
+
+            #region JwtBearer
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Valid", policy =>
+                {
+                    policy.Requirements.Add(new Authorization.ValidJtiRequirement());
+                });
+            })
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "JwtBearer";
+                options.DefaultChallengeScheme = "JwtBearer";
+            })
+            .AddJwtBearer("JwtBearer", jwtBearerOptions =>
+            {
+                jwtBearerOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes("the secret that needs to be at least 16 characeters long for HmacSha256")),
+
+                    ValidateIssuer = false,
+                    // ValidIssuer = "The name of the issuer",
+
+                    ValidateAudience = false,
+                    // ValidAudience = "The name of the audience",
+
+                    ValidateLifetime = true,    // validate the expiration and not-before values in the token
+
+                    ClockSkew = TimeSpan.FromMinutes(5) // 5 minute tolerance for the expiration date
+                };
+            });
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,6 +91,8 @@ namespace CoreWebApi
             {
                 app.UseJsonExceptionHandler(loggerFactory);
             }
+
+            app.UseAuthentication();
 
             app.UseMvc();
 
