@@ -19,6 +19,7 @@ namespace CoreWebApi
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.WithProperty("SourceContext", null)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .WriteTo.File(Path.Combine("logs", "log-.log"), rollingInterval: RollingInterval.Day)
