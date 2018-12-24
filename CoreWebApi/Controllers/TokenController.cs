@@ -26,7 +26,7 @@ namespace CoreWebApi.Controllers
 
         // GET api/token
         [HttpGet]
-        [Authorize("Valid")]
+        [Authorize(Policy="Jti")]
         public ActionResult Get()
         {
             _logger.LogDebug("Get Values From Token.");

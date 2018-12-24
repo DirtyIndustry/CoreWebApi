@@ -19,7 +19,7 @@ namespace CoreWebApi.Authorization
             }
 
             // 检查jti是否在失效列表中
-            bool tokenExists = true; // 从数据库中查找jti是否存在
+            bool tokenExists = false; // 从数据库中查找jti是否存在
             if (tokenExists)
             {
                 context.Fail(); // jti在失效列表中 验证失败

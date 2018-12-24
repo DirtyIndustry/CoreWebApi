@@ -49,7 +49,7 @@ namespace CoreWebApi
             #region JwtBearer
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("Valid", policy =>
+                options.AddPolicy("Jti", policy =>
                 {
                     policy.Requirements.Add(new Authorization.ValidJtiRequirement());
                 });
@@ -77,6 +77,8 @@ namespace CoreWebApi
                     ClockSkew = TimeSpan.FromMinutes(5) // 5 minute tolerance for the expiration date
                 };
             });
+
+            services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, Authorization.ValidJtiHandler>();
             #endregion
         }
 
