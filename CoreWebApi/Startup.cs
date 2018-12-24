@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CoreWebApi.Entities;
 using CoreWebApi.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -80,10 +82,15 @@ namespace CoreWebApi
 
             services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, Authorization.ValidJtiHandler>();
             #endregion
+
+            #region Database
+            var connectionString = @"Server=localhost;database=entrance;uid=myuser;pwd=mypass";
+            services.AddDbContext<EntranceContext>(options => options.UseMySql(connectionString));
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, EntranceContext entranceContext)
         {
             if (env.IsDevelopment())
             {
@@ -93,6 +100,8 @@ namespace CoreWebApi
             {
                 app.UseJsonExceptionHandler(loggerFactory);
             }
+
+            entranceContext.EnsureSeedDataForContext();
 
             app.UseAuthentication();
 

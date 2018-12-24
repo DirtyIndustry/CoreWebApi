@@ -1,4 +1,5 @@
 ﻿using CoreWebApi.Authorization;
+using CoreWebApi.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -18,10 +19,12 @@ namespace CoreWebApi.Controllers
     public class TokenController : ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
+        private readonly EntranceContext _context;
 
-        public TokenController(ILogger<TokenController> logger)
+        public TokenController(ILogger<TokenController> logger, EntranceContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         // GET api/token
@@ -49,7 +52,7 @@ namespace CoreWebApi.Controllers
             string username = Convert.ToString(obj.username);
             string password = Convert.ToString(obj.password);
 
-            if (username == "张三" && password == "123")
+            if (_context.Users.FirstOrDefault(o => o.UserName == username)?.Password == password)
             {
                 return new ObjectResult(TokenOperator.GenerateToken(username));
             }
