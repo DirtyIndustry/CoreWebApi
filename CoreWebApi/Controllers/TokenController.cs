@@ -34,7 +34,8 @@ namespace CoreWebApi.Controllers
         {
             _logger.LogDebug("Get Values From Token.");
             var jti = User.FindFirst("jti")?.Value;
-            var username = User.FindFirst("sub")?.Value;
+            var expstring = User.FindFirst("exp")?.Value;
+            var exp = TokenOperator.UnixTimeStampToDateTime(expstring);
             if (jti == null)
             {
                 return NotFound();
@@ -45,9 +46,28 @@ namespace CoreWebApi.Controllers
             return Ok(jti);
         }
 
+        [HttpDelete]
+        [Authorize(Policy = "Jti")]
+        public IActionResult Delete()
+        {
+            var jti = User.FindFirst("jti")?.Value;
+            var exp = TokenOperator.UnixTimeStampToDateTime(User.FindFirst("exp")?.Value);
+            if (jti == null)
+            {
+                return NotFound();
+            }
+            _context.DeletedTokens.Add(new DeletedToken()
+            {
+                Jti = jti,
+                Exp = exp
+            });
+            _context.SaveChanges();
+            return Ok();
+        }
+
         // POST api/token
         [HttpPost]
-        public IActionResult Create(dynamic obj)
+        public IActionResult Post(dynamic obj)
         {
             string username = Convert.ToString(obj.username);
             string password = Convert.ToString(obj.password);

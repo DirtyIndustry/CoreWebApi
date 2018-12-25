@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CoreWebApi.Entities;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,13 @@ namespace CoreWebApi.Authorization
 {
     public class ValidJtiHandler: AuthorizationHandler<ValidJtiRequirement>
     {
+        private readonly EntranceContext _context;
+
+        public ValidJtiHandler(EntranceContext context)
+        {
+            _context = context;
+        }
+
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ValidJtiRequirement requirement)
         {
             // 检查jti是否存在
@@ -20,6 +28,11 @@ namespace CoreWebApi.Authorization
 
             // 检查jti是否在失效列表中
             bool tokenExists = false; // 从数据库中查找jti是否存在
+            if(_context.DeletedTokens.Any(o => o.Jti == jti))
+            {
+                tokenExists = true;
+            }
+
             if (tokenExists)
             {
                 context.Fail(); // jti在失效列表中 验证失败

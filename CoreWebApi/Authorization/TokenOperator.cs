@@ -35,5 +35,14 @@ namespace CoreWebApi.Authorization
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public static DateTime UnixTimeStampToDateTime(string unixTimeStamp)
+        {
+            // Unix timestamp is seconds past epoch
+            double uts = Convert.ToDouble(unixTimeStamp);
+            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(uts).ToLocalTime();
+            return dtDateTime;
+        }
     }
 }

@@ -84,7 +84,8 @@ namespace CoreWebApi
             #endregion
 
             #region Database
-            var connectionString = @"Server=localhost;database=entrance;uid=myuser;pwd=mypass";
+            // var connectionString = @"Server=localhost;database=entrance;uid=myuser;pwd=mypass";
+            var connectionString = @"Server=192.168.2.47;database=entrance;uid=myuser;pwd=mypass;";
             services.AddDbContext<EntranceContext>(options => options.UseMySql(connectionString));
             #endregion
         }
