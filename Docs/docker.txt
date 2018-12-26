@@ -1,0 +1,123 @@
+﻿Docker 启动centos镜像
+docker run -it centos /bin/bash
+修改root密码
+#yum install passwd
+passwd
+
+Docker 保存容器为镜像
+docker commit -m="root password" -a="dirtyindustry" 8cf6a9e8d96b mycentos:v1
+
+Docker 加载镜像
+docker run --privileged -e "container=docker" -it -p 80:80 -p 3306:3306 --name lampcore mycentos:v1 /usr/sbin/init
+docker run -it -p 80:80 -p 3306:3306 --name lampcore dirtylamp /bin/bash
+
+Docker 保存镜像为文件
+docker save 镜像名 > 文件名.tar
+docker save --output 文件名.tar 镜像名
+
+Docker 从文件中读取镜像
+docker load < 文件名.tar
+docker load --input 文件名.tar
+
+Docker 映射主机文件和目录到容器
+docker run -p 80:80 -v ${PWD}/www/:/var/www/html/ -v ${PWD}/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf -d httpd
+# -p 80:80 将容器80端口映射到主机80端口
+# -v ${PWD}/www/:/var/www/html/ 将主机当前目录下的www目录挂载到容器的/var/www/html/
+# -v ${PWD}/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf 将主机当前目录下的conf/httpd.conf文件挂载到容器的/usr/local/apache2/conf/httpd.conf
+
+Docker 进入已运行的容器
+docker exec -it 容器名 /bin/bash
+
+Docker 由dockerfile构建image
+docker build -t 镜像名 .
+
+CentOS 7 安装LAMP
+1. 安装firewalld
+yum install firewalld
+systemctl start firewalld
+systemctl enable firewalld
+开放80端口
+firewall-cmd --permanent --add-service=http
+开放3306端口
+firewall-cmd --permanent --add-service=mysql
+systemctl restart firewalld
+# firewall-cmd --state
+# firewall-cmd --list-all
+# firewall-cmd --list-interfaces
+# firewall-cmd --get-service
+# firewall-cmd --query-service service_name
+# firewall-cmd --add-port=8080/tcp
+
+2. 安装apache
+yum install httpd
+systemctl status|start|stop|restart|reload httpd
+systemctl enable httpd
+启用浏览文件夹功能
+vi /etc/httpd/conf.d/welcome.conf
+<LocationMatch "^/+$">
+    Option -Indexes(改为Option +Indexes)
+    ErrorDocument 403 /.noindex.html
+</LocationMatch>
+重启httpd生效
+
+3. 安装php
+yum install php php-mysql php-pdo php-gd php-mbstring
+首页显示php状态页
+# echo "<?php phpinfo(); ?>" > /var/www/html/info.php
+# systemctl restart httpd
+修改默认时区
+vi /etc/php.ini
+date.timezone = Asia/Shanghai
+重启httpd生效
+
+4. 安装mariaDB
+yum install mariadb-server mariadb
+systemctl start mariadb
+systemctl enable mariadb
+mysql_secure_installation
+(设置数据库root密码, 禁用远程root登录, 移除test数据库, 禁用匿名登录等)
+修改字符集为UTF8
+vi /etc/my.cnf
+[client]
+...
+default-character-set=utf8
+...
+[mysql]
+...
+default-character-set=utf8
+...
+[mysqld]
+...
+collation-server=utf8_unicode_ci
+init-connect='SET NAMES utf8'
+character-set-server=utf8
+...
+
+5. 安装phpMyAdmin
+yum install epel-release
+yum install phpmyadmin
+修改允许访问的ip
+vi /etc/httpd/conf.d/phpMyAdmin.conf
+注释掉两处
+# Apache 2.4
+<RequireAny>
+    Require ip 127.0.0.1
+    Require ip ::1
+</RequireAny>
+替换为Require all granted
+重启httpd以生效
+
+Ubuntu 18.04 安装LAMP
+1. 系统准备
+apt update && apt upgrade
+如果需要systemctl
+apt install systemd
+如果需要防火墙
+apt install ufw
+# ufw status verbose
+# ufw default deny incoming
+# ufw default allow outgoing
+# ufw allow ssh
+# ufw enable | disable | reload | reset
+# ufw allow http | 80/tcp
+# ufw allow https | 443/tcp
