@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreWebApi.Entities;
 using CoreWebApi.Extensions;
+using CoreWebApi.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -88,6 +89,11 @@ namespace CoreWebApi
             // var connectionString = @"Server=192.168.2.47;database=entrance;uid=myuser;pwd=mypass;";
             services.AddDbContext<EntranceContext>(options => options.UseMySql(connectionString));
             #endregion
+
+            #region Repositories
+            services.AddScoped<IDeletedTokenRepository, DeletedTokenRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -102,7 +108,7 @@ namespace CoreWebApi
                 app.UseJsonExceptionHandler(loggerFactory);
             }
 
-            entranceContext.EnsureSeedDataForContext();
+            // entranceContext.EnsureSeedDataForContext();
 
             app.UseAuthentication();
 

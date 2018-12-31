@@ -1,0 +1,183 @@
+// DbContext
+public class MyContext: DbContext
+{
+    public DbSet<Product> Products {get;set;}
+    public DbSet<Material> Materials {get;set;}
+    
+    public MyContext(DbContextOptions<MyContext> options) : base(options) {
+        // 保证数据库存在
+        Database.EnsureCreated();
+        // 在DbContext构造时更新
+        Database.Migrate();
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        // 在MyContext中使用模型配置
+        modelBuilder.ApplyConfiguration(new ProductConfiguration());
+        // 添加种子数据
+        modelBuilder.Entity<Product>().HasData(
+            new Product
+            {
+                // 必须填入Id
+                Id = 1,
+                Name = "面包",
+                Price = 2.50
+            },
+            new Product
+            {
+                Id = 3,
+                Name = "咖啡",
+                Price = 3.00
+            }
+        );
+        
+        // 从属性需要单独添加
+        modelBuilder.Entity<Material>().HasData(
+            new Material
+            {
+                // 需要写明外键和主键
+                ProductId = 1,
+                Id = 1,
+                Name = "面粉"
+            },
+            new Material
+            {
+                Id = 2,
+                Name = "糖"
+            }
+        );
+    }
+}
+
+// Startup.cs中注册MyContext服务
+public void ConfigureServices(IServiceCollection services) {
+    // 注册时提供option
+    services.AddDbContext<MyContext>(options => options.UseSqlServer(connectionString));
+}
+
+// 在Controller中注入MyContext
+[Route("api/[controller]")]
+public class TestController: Controller
+{
+    private MyContext _context;
+    // 通过构造器注入
+    public TestController(MyContext context) {
+        _context = context;
+    }
+
+    [HttpGet]
+    public IActionResult Get() {
+        // 使用MyContext
+        return Ok(_context.Products.ToList());
+    }
+}
+
+#region Fluent Api
+// 为了表明数据关系而创建模型的配置类
+// 模型及相应的配置类
+public class Product
+{
+    public int Id {get;set;}
+    public string Name {get;set;}
+    public float Price {get;set;}
+    // 用于表明一对多关系的导航属性
+    public ICollection<Material> Materials {get;set;}
+}
+public class ProductConfiguration : IEntityTypeConfiguration<Product>
+{
+    public void Configure(EntityTypeBuilder<Product> builder) {
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Name).IsRequired().HasMaxLength(50);
+        builder.Property(x => x.Price).HasColumnType("decimal(8,2)");
+        // 导航属性不需要配置, 在数据库中不存在
+    }
+}
+// 子属性类
+public class Material
+{
+    public int Id {get;set;}
+    // 外键
+    public int ProductId {get;set;}
+    public string Name {get;set;}
+    // 表明关系的导航属性
+    public Product Product {get;set;}
+}
+public class MaterialConfiguration : IEntityTypeConfiguration<Material>
+{
+    public void Configure(EntityTypeBuilder<Material> builder) {
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Name).IsRequired().HasMaxLength(50);
+        // 子属性的导航属性需要配置
+        builder.HasOne(x => x.Product).WithMany(x => x.Materials).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+#endregion
+
+// 数据库迁移
+Add-Migration
+// 数据库更新
+Update-Database
+// 查看迁移代码
+Script-Migration
+
+#region Repository Pattern
+// 建立interface
+public interface IProductRepository
+{
+    // 根据前端接口需要增加方法
+    IEnumerable<Product> GetProducts();
+    Product GetProduct(int productId, bool includeMaterials);
+    IEnumerable<Material> GetMaterialsForProduct(int productId);
+    Material GetMaterialForProduct(int productId, int materialId);
+}
+// 建立class
+public class ProductRepository : IProductRepository
+{
+    private readonly MyContext _myContext;
+    public ProductRepository(MyContext myContext) {
+        _myContext = myContext;
+    }
+    public IEnumerable<Product> GetProducts() {
+        return _myContext.Products.OrderBy(x => x.Name).ToList();
+    }
+    // 实现其他接口
+}
+// 注册Repository服务
+// startup.cs
+public void ConfigureServices(IServiceCollection services) {
+    services.AddMvc();
+    services.AddScoped<IProductRepository, ProductRepository>();
+}
+// 注入及调用
+public class ProductController : Controller
+{
+    private readonly IProductRepository _productRepositroy;
+
+    public ProductController(IProductRepository productRepository) {
+        _productRepositroy = productRepository;
+    }
+
+    [HttpGet]
+    public IActionResult GetProducts() {
+        var products = _productRepositroy.GetProducts();
+        return Ok(products);
+    }
+}
+#endregion
+
+#region AutoMapper
+// nuget安装automapper
+// 在startup.cs的Configure方法中添加
+public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+    AutoMapper.Mapper.Initialize(config => {
+        config.CreateMap<Product, ProductDto>();
+    });
+}
+// 在方法中调用AutoMapper
+[HttpGet]
+public IActionResult GetProducts() {
+    var products = _productRepositroy.GetProducts();
+    var result = Mapper.Map<IEnumerable<ProductDto>>(products);
+    return Ok(result);
+}
+#endregion

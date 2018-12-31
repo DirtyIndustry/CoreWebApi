@@ -1,5 +1,6 @@
 ﻿using CoreWebApi.Dtos;
 using CoreWebApi.Entities;
+using CoreWebApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,12 +15,13 @@ namespace CoreWebApi.Controllers
     public class UserController: ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
-        private readonly EntranceContext _context;
+        //private readonly EntranceContext _context;
+        private readonly IUserRepository _userRepository;
 
-        public UserController(ILogger<TokenController> logger, EntranceContext context)
+        public UserController(ILogger<TokenController> logger, IUserRepository userRepository)
         {
             _logger = logger;
-            _context = context;
+            _userRepository = userRepository;
         }
 
         [HttpPost]

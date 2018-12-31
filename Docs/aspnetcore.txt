@@ -1,0 +1,45 @@
+#region 依赖注入
+public class ProductController
+{
+    // Controller内使用的变量为interface而不是class
+    private ILogger<ProductController> _logger;
+    // 通过构造器进行注入
+    public ProductController(ILogger<ProductController> logger) {
+        _logger = logger;
+    }
+}
+
+// 自定义一个服务接口
+public interface IMailService
+{
+    void Send(string subject, string msg);
+}
+// 自定义一个服务类继承接口
+public class LocalMailService : IMailService
+{
+    public void Send(string subject, string msg) {
+
+    }
+}
+// 在Startup.cs中注册服务
+public void ConfigureServices(IServiceCollection services) {
+    services.AddMvc();
+    // 当请求IMailService接口时, 提供LocalMailService类
+    services.AddTransient<IMailService, LocalMailService>();
+    // AddTransient每次调用都会创建新实例, 每个服务每个控制器都创建不同的实例
+    // AddScoped每次会话都会创建实例, 同会话内使用同一个实例
+    // AddSingleton所有地方都使用同一个实例
+}
+// 在Controller中注入服务
+public class ProductController : Controller
+{
+    // 声明interface变量
+    private readonly IMailService _mailService;
+    // 通过构造器注入
+    public ProductController(IMailService mailService) {
+        _mailService = mailService;
+    }
+}
+#endregion
+
+

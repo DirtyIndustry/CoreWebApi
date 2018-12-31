@@ -1,0 +1,210 @@
+#region 1. 路由
+// controller类名前添加路由
+// # /api/product
+[Route("api/[controller]")]
+public class ProductController : Controller
+{
+
+    #region 状态码
+    // 200：OK
+    // 201：Created
+    // 204：No Content
+    // 400：Bad Request
+    // 401：Unauthorized
+    // 404：Not Found
+    // 409：Conflict
+    // 500：Internal Server Error
+    #endregion
+
+    #region GET及路由
+    // 方法前添加动作
+    // # Get /api/product
+    [HttpGet]
+    public IActionResult GetProducts()
+    {
+        return Ok(result);
+    }
+
+    // 方法前添加动作及固定参数
+    // # Get /api/product/all
+    [HttpGet("all")]
+    public IActionResult GetProducts()
+    {
+        return Ok(result);
+    }
+
+    // 方法前添加动作及动态参数
+    // # Get /api/product/{id}
+    [HttpGet("{id}")]
+    public IActionResult GetProducts(int id)
+    {
+        if (product == null) {
+            return NotFound();
+        } else {
+            return Ok(product);
+        }
+    }
+    #endregion
+
+    #region Post
+    // 添加name属性方便其他方法引用该路由
+    // 类路由+方法路由 = Get /api/product/{id}
+    [Route("{id}", Name="GetProduct")]
+    public IActionResult GetProduct(int id) {
+
+    }
+
+    // # Post /api/product
+    [HttpPost]
+    // [FromBody] 表示方法参数来自请求体而不是请求Url问号后跟的部分
+    public IActionResult Post([FromBody] Product product) {
+        // 如果请求体中的数据无法被转化 则参数值为null
+        if (product == null) {
+            return BadRequest();
+        }
+        // Post请求成功建议返回201 Created
+        // CreatedAtRoute方法会在返回头中添加location:项，以指明新添加的数据的访问地址
+        return CreatedAtRoute("GetProduct", new {id=newProduct.Id}, newProduct);
+    }
+
+    // 数据验证 
+    // 使用Data Annotations
+    public class ProductCreation
+    {
+        // ErrorMessage中的参数{0}指的是Display的Name属性
+        // {1}表示当前Annotation中的第一个变量, {2}表示第二个变量
+        [Display(Name="产品名称")]
+        [Required(ErrorMessage="{0}是必填项")]
+        [MinLength(2, ErrorMessage="{0}的最小长度是{1}")]
+        [MaxLength(10, ErrorMessage="{0}的长度不可以超过{1}")]
+        [StringLength(10, MinimumLength=2, ErrorMessage="{0}的长度应该不小于{2}, 不大于{1}")]
+        public string Name {get;set;}
+
+        [Display(Name="价格")]
+        [Range(0, Double.MaxValue, ErrorMessage="{0}的值必须大于{1}")]
+        public float Price {get;set;}
+    }
+
+    // 使用Data Annotations验证
+    [HttpPost]
+    public IActionResult Post([FromBody] ProductCreation product) {
+        if (product.Name == "产品") {
+            // 手动添加错误
+            ModelState.AddModelError("Name", "产品名称不可以是'产品'二字");
+        }
+        if (!ModelState.IsValid) {
+            // 将在返回体中添加"属性名: [ErrorMessage, ErrorMessage]"格式的错误信息
+            return BadRequest(ModelState);
+        }
+    }
+    #endregion
+
+    #region Put
+    [HttpPut("{id}")]
+    public IActionResult Put(int id, [FromBody] Product product) {
+        if (model == null) {
+            return NotFound();
+        }
+        // 更新成功建议返回No Content
+        return NoContent();
+        // 也可以返回Ok加更新后的数值
+        return Ok(newProduct);
+    }
+    #endregion
+
+    #region Patch
+    // Patch一般利用Json Patch RFC 6092规则接收数据, 结构为
+    // [
+    //     {
+    //         "op": "replace",
+    //         "path": "/name",
+    //         "value": "New Name"
+    //     }
+    // ]
+    // 以实体为例
+    // {
+    //     "biscuits": [
+    //         {"name": "Digestive"},
+    //         {"name": "Choco Leibniz"}
+    //     ]
+    // }
+    // Add 为object添加属性或者插入值到array
+    // {"op": "add", "path": "/biscuits/1", "value": {"name": "Ginger Nut"}}
+    // 新值将被插入到数字index之前, 可替换为'-'表示数组的结尾
+    // Remove
+    // {"op": "remove", "path": "/biscuits"}
+    // Replace
+    // {"op": "replace", "path": "/biscuits/0/name", "value": "Chocolate Digestive"}
+    // Copy
+    // {"op": "copy", "from": "/biscuits/0", "path": "/best_biscuit"}
+    // Move
+    // {"op": "move", "from": "/biscuits", "path": "/cookies"}
+    // Test 检查指定路径的数值, 如果数值不符, 则整个传入数组的Patch Doc都不会被执行
+    // {"op": "test", "path": "/best_biscuit", "value": "Choco Leibniz"}
+    [HttpPatch("{id}")]
+    public IActionResult Patch(int id, [FromBody] JsonPatchDocument<Product> patchDoc) {
+        // 应用patchDoc
+        patchDoc.ApplyTo(newProduct, ModelState);
+
+        // 需要对修改后的新数值进行显式验证
+        TryValidateModel(newProduct);
+        if (!ModelState.IsValid) {
+            return BadRequest(ModelState);
+        }
+        // Patch请求建议返回No Content
+        return NoContent();
+    }
+    #endregion
+
+    #region Delete
+    [HttpDelete("{id}")]
+    public IActionResult Delete(int id) {
+        if (model == null) {
+            return NotFound();
+        }
+        return NoContent();
+    }
+    #endregion
+
+}
+
+// 子路由
+// /api/product
+[Route("api/product")]
+public class MaterialController : Controller
+{
+    // # Get /api/product/{productId}/materials
+    [HttpGet("{productId}/materials")]
+    public IActionResult GetMaterials(int productId) {
+
+    }
+
+    // # Get /api/product/{productId}/materials/{id}
+    [HttpGet("{productId}/materials/{id}")]
+    public IActionResult GetMaterial(int productId, int id) {
+
+    }
+}
+
+#endregion
+
+#region 返回原始非驼峰格式（首字母大写）的数据
+// startup.cs
+public void ConfigureServices(IServiceCollection services) {
+    services.AddMvc()
+        .AddJsonOptions(options => {
+            if (options.SerializerSettings.ContractResolver is DefaultContractResolver resolver) {
+                resolver.NamingStrategy = null;
+            }
+        });
+}
+#endregion
+
+#region 添加返回xml格式的数据
+public void ConfigureServices(IServiceCollection services) {
+    services.AddMvc()
+        .AddMvcOptions(options => {
+            options.OutputFormatters.Add(new CmlDataContractSerializerOutputFormatter());
+        });
+}
+#endregion

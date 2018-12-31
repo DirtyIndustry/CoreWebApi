@@ -18,8 +18,33 @@ namespace CoreWebApi.Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            #region Configurations
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new DeletedTokenConfiguration());
+            #endregion
+
+            #region SeedData
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 1,
+                    UserName = "admin",
+                    Password = "admin"
+                },
+                new User
+                {
+                    Id = 2,
+                    UserName = "张三",
+                    Password = "123"
+                },
+                new User
+                {
+                    Id = 3,
+                    UserName = "李四",
+                    Password = "123"
+                }
+            );
+            #endregion
         }
     }
 }

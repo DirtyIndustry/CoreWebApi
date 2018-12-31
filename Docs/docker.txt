@@ -31,6 +31,26 @@ docker exec -it 容器名 /bin/bash
 Docker 由dockerfile构建image
 docker build -t 镜像名 .
 
+Docker 运行yml文件
+docker-compose -f 文件名.yml up -d
+
+Docker 用link方法运行mysql和phpmyadmin
+# 创建容器server-mysql
+docker run --name server-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:5.6
+# 创建容器server-phpmyadmin
+docker run --name server-phpmyadmin -p 8080:80 --link server-mysql:db -d phpmyadmin/phpmyadmin:latest
+
+Docker 用network方法运行mysql和phpmyadmin
+# 创建网络net-mysql
+docker network create net-mysql
+# 创建容器server-mysql并加入网络net-mysql
+docker run --restart always --name server-mysql -e MYSQL_USER=root -e MYSQL_PASSWORD=root -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 --network net-mysql -d mysql:5.6
+# 创建容器server-phpmyadmin并加入网络net-mysql
+docker run --name server-phpmyadmin -e MYSQL_USER=root -e MYSQL_PASSWORD=root -e MYSQL_ROOT_PASSWORD=root -e PMA_HOST=server-mysql -p 8080:80 --network net-mysql -d phpmyadmin/phpmyadmin:latest
+
+Docker 在容器内部保持容器运行状态退出容器
+Ctrl + P, Ctrl + Q
+
 CentOS 7 安装LAMP
 1. 安装firewalld
 yum install firewalld
@@ -92,6 +112,12 @@ collation-server=utf8_unicode_ci
 init-connect='SET NAMES utf8'
 character-set-server=utf8
 ...
+允许从其他机器访问数据库
+vi /etc/mysql/mysql.conf.d/mysqld.cnf
+注释掉bind-address=127.0.0.1
+#instead of skip-networking the default is now to listen only on
+#localhost which is more compatible and is not less secure.
+#bind-address=127.0.0.1
 
 5. 安装phpMyAdmin
 yum install epel-release
@@ -106,6 +132,8 @@ vi /etc/httpd/conf.d/phpMyAdmin.conf
 </RequireAny>
 替换为Require all granted
 重启httpd以生效
+#Ubuntu建立/var/www/html下的软连接
+ln -s /usr/share/phpmyadmin /var/www/html/phpmyadmin
 
 Ubuntu 18.04 安装LAMP
 1. 系统准备

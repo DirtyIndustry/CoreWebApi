@@ -1,5 +1,6 @@
 ﻿using CoreWebApi.Authorization;
 using CoreWebApi.Entities;
+using CoreWebApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,12 +20,14 @@ namespace CoreWebApi.Controllers
     public class TokenController : ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
-        private readonly EntranceContext _context;
+        private readonly IUserRepository _userRepository;
+        private readonly IDeletedTokenRepository _deletedTokenRepository;
 
-        public TokenController(ILogger<TokenController> logger, EntranceContext context)
+        public TokenController(ILogger<TokenController> logger, IUserRepository userRepository, IDeletedTokenRepository deletedTokenRepository)
         {
             _logger = logger;
-            _context = context;
+            _userRepository = userRepository;
+            _deletedTokenRepository = deletedTokenRepository;
         }
 
         // GET api/token
@@ -46,6 +49,10 @@ namespace CoreWebApi.Controllers
             return Ok(jti);
         }
 
+        /// <summary>
+        /// User Logout.
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete]
         [Authorize(Policy = "Jti")]
         public IActionResult Delete()
@@ -56,23 +63,30 @@ namespace CoreWebApi.Controllers
             {
                 return NotFound();
             }
-            _context.DeletedTokens.Add(new DeletedToken()
+            _deletedTokenRepository.DeleteToken(new DeletedToken
             {
                 Jti = jti,
                 Exp = exp
             });
-            _context.SaveChanges();
+            if (!_deletedTokenRepository.Save())
+            {
+                return StatusCode(500, "将token失效信息存入数据库时出错");
+            }
             return Ok();
         }
 
-        // POST api/token
+        /// <summary>
+        /// User Login.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Post(dynamic obj)
         {
             string username = Convert.ToString(obj.username);
             string password = Convert.ToString(obj.password);
 
-            if (_context.Users.FirstOrDefault(o => o.UserName == username)?.Password == password)
+            if (_userRepository.VerifyUser(username, password))
             {
                 return new ObjectResult(TokenOperator.GenerateToken(username));
             }

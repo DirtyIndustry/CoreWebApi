@@ -1,4 +1,5 @@
 ﻿using CoreWebApi.Entities;
+using CoreWebApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
@@ -9,11 +10,12 @@ namespace CoreWebApi.Authorization
 {
     public class ValidJtiHandler: AuthorizationHandler<ValidJtiRequirement>
     {
-        private readonly EntranceContext _context;
+        // private readonly EntranceContext _context;
+        private readonly IDeletedTokenRepository _deletedTokenRepository;
 
-        public ValidJtiHandler(EntranceContext context)
+        public ValidJtiHandler(IDeletedTokenRepository deletedTokenRepository)
         {
-            _context = context;
+            _deletedTokenRepository = deletedTokenRepository;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ValidJtiRequirement requirement)
@@ -26,20 +28,13 @@ namespace CoreWebApi.Authorization
                 return Task.CompletedTask;
             }
 
-            // 检查jti是否在失效列表中
-            bool tokenExists = false; // 从数据库中查找jti是否存在
-            if(_context.DeletedTokens.Any(o => o.Jti == jti))
+            if (_deletedTokenRepository.VerifyToken(jti))
             {
-                tokenExists = true;
-            }
-
-            if (tokenExists)
-            {
-                context.Fail(); // jti在失效列表中 验证失败
+                context.Succeed(requirement); // 显式声明验证成功
             }
             else
             {
-                context.Succeed(requirement); // 显式声明验证成功
+                context.Fail(); // jti在失效列表中 验证失败
             }
             return Task.CompletedTask;
         }
