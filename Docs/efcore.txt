@@ -31,7 +31,7 @@ public class MyContext: DbContext
             }
         );
         
-        // 从属性需要单独添加
+        // 从属性种子数据需要单独添加
         modelBuilder.Entity<Material>().HasData(
             new Material
             {

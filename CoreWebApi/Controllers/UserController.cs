@@ -16,13 +16,17 @@ namespace CoreWebApi.Controllers
     public class UserController: ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
-        //private readonly EntranceContext _context;
+        private readonly ICompanyRepository _companyRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserController(ILogger<TokenController> logger, IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public UserController(ILogger<TokenController> logger,
+            ICompanyRepository companyRepository,
+            IUserRepository userRepository,
+            IUnitOfWork unitOfWork)
         {
             _logger = logger;
+            _companyRepository = companyRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
         }
@@ -42,19 +46,43 @@ namespace CoreWebApi.Controllers
 
         }
 
+        [HttpGet("all")]
+        public IActionResult GetAll()
+        {
+            var userlist = _userRepository.GetUserList();
+            if (userlist == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(userlist);
+            }
+        }
+
         /// <summary>
         /// User Registration
         /// </summary>
-        /// <param name="userDto"></param>
+        /// <param name="userCreateDto"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Post([FromBody] UserDto userDto)
+        public IActionResult Post([FromBody] UserCreateDto userCreateDto)
         {
-            if (userDto == null)
+            if (userCreateDto == null)
             {
                 return BadRequest();
             }
-            var user = Mapper.Map<User>(userDto);
+            
+            var user = Mapper.Map<UserEntrance>(userCreateDto);
+
+            if (!_companyRepository.CompanyExists(user.CompanyName))
+            {
+                _companyRepository.AddCompany(new CompanyEntrance
+                {
+                    Name = user.CompanyName
+                });
+            }
+
             _userRepository.AddUser(user);
             if (_unitOfWork.Save())
             {
@@ -65,5 +93,6 @@ namespace CoreWebApi.Controllers
                 return StatusCode(500, "将用户信息存入数据库时出错");
             }
         }
+
     }
 }

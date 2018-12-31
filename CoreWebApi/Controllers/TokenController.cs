@@ -94,9 +94,9 @@ namespace CoreWebApi.Controllers
         /// <param name="obj"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Post([FromBody] UserDto userDto)
+        public IActionResult Post([FromBody] UserLoginDto userDto)
         {
-            var user = Mapper.Map<User>(userDto);
+            var user = Mapper.Map<UserEntrance>(userDto);
             if (_userRepository.VerifyUser(user))
             {
                 return new ObjectResult(TokenOperator.GenerateToken(user.UserName));

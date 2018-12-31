@@ -1,4 +1,5 @@
 ﻿using CoreWebApi.Entities;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CoreWebApi.Repositories
@@ -11,24 +12,29 @@ namespace CoreWebApi.Repositories
             _entranceContext = entranceContext;
         }
 
-        public bool VerifyUser(User user)
+        public bool VerifyUser(UserEntrance user)
         {
-            return _entranceContext.Users.FirstOrDefault(u => u.UserName == user.UserName)?.Password == user.Password;
+            return _entranceContext.UserEntrances.FirstOrDefault(u => u.UserName == user.UserName)?.Password == user.Password;
             // return _entranceContext.Users.Any(u => u.UserName == username & u.Password == password);
         }
 
-        public User GetUserInfo(string username)
+        public UserEntrance GetUserInfo(string username)
         {
-            return _entranceContext.Users.FirstOrDefault(u => u.UserName == username);
+            return _entranceContext.UserEntrances.FirstOrDefault(u => u.UserName == username);
         }
 
-        public void AddUser(User user)
+        public void AddUser(UserEntrance user)
         {
             //if (_entranceContext.Users.Any(u => u.UserName == userDto.UserName))
             //{
             //    return false;
             //}
-            _entranceContext.Users.Add(user);
+            _entranceContext.UserEntrances.Add(user);
+        }
+
+        public List<string> GetUserList()
+        {
+            return _entranceContext.UserEntrances.Select(u => u.UserName).ToList();
         }
     }
 }

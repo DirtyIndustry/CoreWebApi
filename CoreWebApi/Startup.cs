@@ -97,6 +97,7 @@ namespace CoreWebApi
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDeletedTokenRepository, DeletedTokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICompanyRepository, CompanyRepository>();
             #endregion
 
             #region Caching
@@ -130,7 +131,8 @@ namespace CoreWebApi
 
             AutoMapper.Mapper.Initialize(config =>
             {
-                config.CreateMap<UserDto, User>();
+                config.CreateMap<UserLoginDto, UserEntrance>();
+                config.CreateMap<UserCreateDto, UserEntrance>();
             });
 
             app.UseMvc();

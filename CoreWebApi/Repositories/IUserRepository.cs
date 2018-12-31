@@ -1,4 +1,5 @@
 ﻿using CoreWebApi.Entities;
+using System.Collections.Generic;
 
 namespace CoreWebApi.Repositories
 {
@@ -10,10 +11,12 @@ namespace CoreWebApi.Repositories
         /// <param name="username">User's login identity</param>
         /// <param name="password">User's password</param>
         /// <returns>Validity of the user</returns>
-        bool VerifyUser(User user);
+        bool VerifyUser(UserEntrance user);
 
-        User GetUserInfo(string username);
+        UserEntrance GetUserInfo(string username);
 
-        void AddUser(User user);
+        void AddUser(UserEntrance user);
+
+        List<string> GetUserList();
     }
 }

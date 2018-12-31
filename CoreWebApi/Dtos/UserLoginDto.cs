@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CoreWebApi.Dtos
 {
-    public class UserDto
+    public class UserLoginDto
     {
         public string UserName { get; set; }
         public string Password { get; set; }

@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using CoreWebApi.Entities;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -8,13 +9,13 @@ namespace CoreWebApi.Authorization
 {
     public class TokenOperator
     {
-        public static string GenerateToken(string username)
+        public static string GenerateToken(UserEntrance user)
         {
-            var jti = username + DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
+            var jti = user.UserName + DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
             var claims = new Claim[]
             {
                 // new Claim(ClaimTypes.Name, username),
-                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(ClaimTypes.Role, "root"),
                 // new Claim(JwtRegisteredClaimNames.Iss, "Core Web Api"),
                 // new Claim(JwtRegisteredClaimNames.Aud, "Web Application"),
@@ -23,8 +24,9 @@ namespace CoreWebApi.Authorization
                 // new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddMinutes(1)).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
+                new Claim("company", user.CompanyName),
                 new Claim("department", "headquarter"),
-                new Claim("title", "boss")
+                new Claim("position", "boss")
             };
 
             var token = new JwtSecurityToken(

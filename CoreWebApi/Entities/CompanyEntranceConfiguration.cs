@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace CoreWebApi.Entities
 {
-    public class UserConfiguration : IEntityTypeConfiguration<User>
+    public class CompanyEntranceConfiguration : IEntityTypeConfiguration<CompanyEntrance>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<CompanyEntrance> builder)
         {
             builder.HasKey(x => x.Id);
+            builder.HasAlternateKey(x => x.Name);
         }
     }
 }
