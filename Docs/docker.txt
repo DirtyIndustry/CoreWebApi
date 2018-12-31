@@ -51,6 +51,9 @@ docker run --name server-phpmyadmin -e MYSQL_USER=root -e MYSQL_PASSWORD=root -e
 Docker 在容器内部保持容器运行状态退出容器
 Ctrl + P, Ctrl + Q
 
+Docker 运行redis并启用密码
+docker run --name 容器名 -p 端口号:6379 -d --restart=always redis:latest redis-server --appendonly yes --requirepass "密码"
+
 CentOS 7 安装LAMP
 1. 安装firewalld
 yum install firewalld

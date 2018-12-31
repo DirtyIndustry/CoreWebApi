@@ -1,4 +1,5 @@
 ﻿using CoreWebApi.Authorization;
+using CoreWebApi.Caching;
 using CoreWebApi.Entities;
 using CoreWebApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -22,12 +23,17 @@ namespace CoreWebApi.Controllers
         private readonly ILogger<TokenController> _logger;
         private readonly IUserRepository _userRepository;
         private readonly IDeletedTokenRepository _deletedTokenRepository;
+        private readonly IDeletedTokenCache _deletedTokenCache;
 
-        public TokenController(ILogger<TokenController> logger, IUserRepository userRepository, IDeletedTokenRepository deletedTokenRepository)
+        public TokenController(ILogger<TokenController> logger,
+            IUserRepository userRepository,
+            IDeletedTokenRepository deletedTokenRepository,
+            IDeletedTokenCache deletedTokenCache)
         {
             _logger = logger;
             _userRepository = userRepository;
             _deletedTokenRepository = deletedTokenRepository;
+            _deletedTokenCache = deletedTokenCache;
         }
 
         // GET api/token
@@ -63,15 +69,20 @@ namespace CoreWebApi.Controllers
             {
                 return NotFound();
             }
-            _deletedTokenRepository.DeleteToken(new DeletedToken
+            _deletedTokenCache.DeleteToken(new DeletedToken
             {
                 Jti = jti,
                 Exp = exp
             });
-            if (!_deletedTokenRepository.Save())
-            {
-                return StatusCode(500, "将token失效信息存入数据库时出错");
-            }
+            //_deletedTokenRepository.DeleteToken(new DeletedToken
+            //{
+            //    Jti = jti,
+            //    Exp = exp
+            //});
+            //if (!_deletedTokenRepository.Save())
+            //{
+            //    return StatusCode(500, "将token失效信息存入数据库时出错");
+            //}
             return Ok();
         }
 

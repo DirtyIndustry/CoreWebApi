@@ -20,14 +20,6 @@ namespace CoreWebApi.Repositories
             _entranceContext.DeletedTokens.Add(deletedToken);
         }
 
-        /// <summary>
-        /// Saves all changes to database.
-        /// </summary>
-        /// <returns>Save operation success or not</returns>
-        public bool Save()
-        {
-            return _entranceContext.SaveChanges() >= 0;
-        }
 
         /// <summary>
         /// Verifies a token's validness by checking it's existance in invalid-token table.

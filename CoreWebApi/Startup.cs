@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CoreWebApi.Caching;
+using CoreWebApi.Caching.Redis;
 using CoreWebApi.Entities;
 using CoreWebApi.Extensions;
 using CoreWebApi.Repositories;
@@ -94,6 +96,18 @@ namespace CoreWebApi
             services.AddScoped<IDeletedTokenRepository, DeletedTokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             #endregion
+
+            #region Caching
+            services.AddStackExchangeRedisCache(options =>
+            {
+                //用于连接Redis的配置
+                options.Configuration = "localhost,password=mypass";// Configuration.GetConnectionString("RedisConnectionString");
+                //Redis实例名 会加在Key前面
+                //options.InstanceName = "RedisDistributedCache";
+            });
+            services.AddScoped<IDeletedTokenCache, DeletedTokenCache>();
+            #endregion
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

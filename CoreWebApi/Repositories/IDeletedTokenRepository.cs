@@ -17,10 +17,5 @@ namespace CoreWebApi.Repositories
         /// <param name="deletedToken">Token that need to be marked invalid</param>
         void DeleteToken(DeletedToken deletedToken);
 
-        /// <summary>
-        /// Saves all changes to database.
-        /// </summary>
-        /// <returns>Save operation success or not</returns>
-        bool Save();
     }
 }
