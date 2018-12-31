@@ -1,4 +1,6 @@
-﻿namespace CoreWebApi.Repositories
+﻿using CoreWebApi.Entities;
+
+namespace CoreWebApi.Repositories
 {
     public interface IUserRepository
     {
@@ -8,6 +10,10 @@
         /// <param name="username">User's login identity</param>
         /// <param name="password">User's password</param>
         /// <returns>Validity of the user</returns>
-        bool VerifyUser(string username, string password);
+        bool VerifyUser(User user);
+
+        User GetUserInfo(string username);
+
+        void AddUser(User user);
     }
 }

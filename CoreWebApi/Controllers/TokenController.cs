@@ -1,5 +1,7 @@
-﻿using CoreWebApi.Authorization;
+﻿using AutoMapper;
+using CoreWebApi.Authorization;
 using CoreWebApi.Caching;
+using CoreWebApi.Dtos;
 using CoreWebApi.Entities;
 using CoreWebApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -92,14 +94,12 @@ namespace CoreWebApi.Controllers
         /// <param name="obj"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Post(dynamic obj)
+        public IActionResult Post([FromBody] UserDto userDto)
         {
-            string username = Convert.ToString(obj.username);
-            string password = Convert.ToString(obj.password);
-
-            if (_userRepository.VerifyUser(username, password))
+            var user = Mapper.Map<User>(userDto);
+            if (_userRepository.VerifyUser(user))
             {
-                return new ObjectResult(TokenOperator.GenerateToken(username));
+                return new ObjectResult(TokenOperator.GenerateToken(user.UserName));
             }
             return BadRequest();
         }

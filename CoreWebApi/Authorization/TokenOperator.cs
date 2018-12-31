@@ -10,7 +10,7 @@ namespace CoreWebApi.Authorization
     {
         public static string GenerateToken(string username)
         {
-            var jti = username + new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString();
+            var jti = username + DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
             var claims = new Claim[]
             {
                 // new Claim(ClaimTypes.Name, username),

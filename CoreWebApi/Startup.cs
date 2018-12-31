@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreWebApi.Caching;
 using CoreWebApi.Caching.Redis;
+using CoreWebApi.Dtos;
 using CoreWebApi.Entities;
 using CoreWebApi.Extensions;
 using CoreWebApi.Repositories;
@@ -93,6 +94,7 @@ namespace CoreWebApi
             #endregion
 
             #region Repositories
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDeletedTokenRepository, DeletedTokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             #endregion
@@ -125,6 +127,11 @@ namespace CoreWebApi
             // entranceContext.EnsureSeedDataForContext();
 
             app.UseAuthentication();
+
+            AutoMapper.Mapper.Initialize(config =>
+            {
+                config.CreateMap<UserDto, User>();
+            });
 
             app.UseMvc();
 
