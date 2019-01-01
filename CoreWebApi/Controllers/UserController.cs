@@ -18,12 +18,12 @@ namespace CoreWebApi.Controllers
         private readonly ILogger<TokenController> _logger;
         private readonly ICompanyRepository _companyRepository;
         private readonly IUserRepository _userRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork<EntranceContext> _unitOfWork;
 
         public UserController(ILogger<TokenController> logger,
             ICompanyRepository companyRepository,
             IUserRepository userRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork<EntranceContext> unitOfWork)
         {
             _logger = logger;
             _companyRepository = companyRepository;
@@ -75,11 +75,11 @@ namespace CoreWebApi.Controllers
             
             var user = Mapper.Map<UserEntrance>(userCreateDto);
 
-            if (!_companyRepository.CompanyExists(user.CompanyName))
+            if (!_companyRepository.CompanyExists(userCreateDto.CompanyName))
             {
                 _companyRepository.AddCompany(new CompanyEntrance
                 {
-                    Name = user.CompanyName
+                    CompanyName = userCreateDto.CompanyName
                 });
             }
 

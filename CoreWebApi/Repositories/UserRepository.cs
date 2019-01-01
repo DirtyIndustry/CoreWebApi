@@ -1,4 +1,5 @@
 ﻿using CoreWebApi.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,9 +8,14 @@ namespace CoreWebApi.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly EntranceContext _entranceContext;
-        public UserRepository(EntranceContext entranceContext)
+        private readonly IUnitOfWork<EntranceContext> _unitOfWork;
+        private readonly IUnitOfWork<CompanyContext> _companyUnitOfWork;
+
+        public UserRepository(IUnitOfWork<EntranceContext> unitOfWork, IUnitOfWork<CompanyContext> companyUnitOfWork)
         {
-            _entranceContext = entranceContext;
+            _entranceContext = unitOfWork.DbContext;
+            _unitOfWork = unitOfWork;
+            _companyUnitOfWork = companyUnitOfWork;
         }
 
         public bool VerifyUser(UserEntrance user)
@@ -20,7 +26,17 @@ namespace CoreWebApi.Repositories
 
         public UserEntrance GetUserInfo(string username)
         {
-            return _entranceContext.UserEntrances.FirstOrDefault(u => u.UserName == username);
+            var userentrance = _entranceContext.UserEntrances.FirstOrDefault(u => u.UserName == username);
+            if (userentrance == null)
+            {
+                return null;
+            }
+            var company = _entranceContext.CompanyEntrances.FirstOrDefault(c => c.Id == userentrance.CompanyId);
+            var result = _entranceContext.UserEntrances.Include(u => u.Company).Include(u => u.User).FirstOrDefault(u => u.UserName == username);
+
+
+            System.Diagnostics.Debug.WriteLine(result);
+            return null;
         }
 
         public void AddUser(UserEntrance user)

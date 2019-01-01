@@ -91,10 +91,13 @@ namespace CoreWebApi
             var connectionString = @"Server=localhost;database=entrance;uid=myuser;pwd=mypass";
             // var connectionString = @"Server=192.168.2.47;database=entrance;uid=myuser;pwd=mypass;";
             services.AddDbContext<EntranceContext>(options => options.UseMySql(connectionString));
+            var connectionString2 = @"Server=localhost;database=defaultdb;uid=myuser;pwd=mypass";
+            services.AddDbContext<CompanyContext>(options => options.UseMySql(connectionString2));
             #endregion
 
             #region Repositories
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUnitOfWork<EntranceContext>, UnitOfWork<EntranceContext>>();
+            services.AddScoped<IUnitOfWork<CompanyContext>, UnitOfWork<CompanyContext>>();
             services.AddScoped<IDeletedTokenRepository, DeletedTokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();

@@ -55,17 +55,17 @@ namespace CoreWebApi.Repositories
                 new CompanyEntrance
                 {
                     Id = 1,
-                    Name = "Alibaba"
+                    CompanyName = "Alibaba"
                 },
                 new CompanyEntrance
                 {
                     Id = 2,
-                    Name = "百度"
+                    CompanyName = "百度"
                 },
                 new CompanyEntrance
                 {
                     Id = 3,
-                    Name = "腾讯"
+                    CompanyName = "腾讯"
                 });
             #endregion
         }

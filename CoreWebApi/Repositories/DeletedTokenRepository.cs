@@ -6,9 +6,12 @@ namespace CoreWebApi.Repositories
     public class DeletedTokenRepository : IDeletedTokenRepository
     {
         private readonly EntranceContext _entranceContext;
-        public DeletedTokenRepository(EntranceContext entranceContext)
+        private readonly IUnitOfWork<EntranceContext> _unitOfWork;
+
+        public DeletedTokenRepository(IUnitOfWork<EntranceContext> unitOfWork)
         {
-            _entranceContext = entranceContext;
+            _unitOfWork = unitOfWork;
+            _entranceContext = unitOfWork.DbContext;
         }
 
         /// <summary>

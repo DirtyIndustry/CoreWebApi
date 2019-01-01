@@ -12,7 +12,7 @@ namespace CoreWebApi.Entities
         public void Configure(EntityTypeBuilder<CompanyEntrance> builder)
         {
             builder.HasKey(x => x.Id);
-            builder.HasAlternateKey(x => x.Name);
+            builder.HasAlternateKey(x => x.CompanyName);
         }
     }
 }
