@@ -3,15 +3,14 @@ using System;
 using CoreWebApi.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace CoreWebApi.Migrations
+namespace CoreWebApi.Migrations.Entrance
 {
     [DbContext(typeof(EntranceContext))]
-    [Migration("20181226144612_initial")]
-    partial class initial
+    partial class EntranceContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,10 +34,13 @@ namespace CoreWebApi.Migrations
                     b.ToTable("DeletedTokens");
                 });
 
-            modelBuilder.Entity("CoreWebApi.Entities.User", b =>
+            modelBuilder.Entity("CoreWebApi.Entities.Login", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Company")
+                        .IsRequired();
 
                     b.Property<string>("Password")
                         .IsRequired();
@@ -50,7 +52,13 @@ namespace CoreWebApi.Migrations
 
                     b.HasAlternateKey("UserName");
 
-                    b.ToTable("Users");
+                    b.ToTable("Logins");
+
+                    b.HasData(
+                        new { Id = 1, Company = "DefaultCompany", Password = "admin", UserName = "admin" },
+                        new { Id = 2, Company = "DefaultCompany", Password = "123", UserName = "张三" },
+                        new { Id = 3, Company = "DefaultCompany", Password = "123", UserName = "李四" }
+                    );
                 });
 #pragma warning restore 612, 618
         }

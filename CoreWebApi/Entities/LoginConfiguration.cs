@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace CoreWebApi.Entities
 {
-    public class UserConfiguration : IEntityTypeConfiguration<User>
+    public class LoginConfiguration : IEntityTypeConfiguration<Login>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<Login> builder)
         {
             builder.HasKey(x => x.Id);
             builder.HasAlternateKey(x => x.UserName);
+            builder.Property(x => x.Password).IsRequired();
+            builder.Property(x => x.Company).IsRequired();
         }
     }
 }

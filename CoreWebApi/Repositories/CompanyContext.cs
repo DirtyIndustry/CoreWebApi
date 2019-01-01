@@ -24,28 +24,28 @@ namespace CoreWebApi.Repositories
             #endregion
 
             #region Seed Data
-            modelBuilder.Entity<User>().HasData(
-                new User
-                {
-                    Id = 1,
-                    Department = "headquarter",
-                    Position = "CEO",
-                    UserEntranceId = 1
-                },
-                new User
-                {
-                    Id = 2,
-                    Department = "headquarter",
-                    Position = "Boss",
-                    UserEntranceId = 2
-                },
-                new User
-                {
-                    Id = 3,
-                    Department = "headquarter",
-                    Position = "Administrator",
-                    UserEntranceId = 3
-                });
+            //modelBuilder.Entity<User>().HasData(
+            //    new User
+            //    {
+            //        Id = 1,
+            //        UserName = "admin",
+            //        Department = "headquarter",
+            //        Position = "CEO"
+            //    },
+            //    new User
+            //    {
+            //        Id = 2,
+            //        UserName = "张三",
+            //        Department = "headquarter",
+            //        Position = "Boss"
+            //    },
+            //    new User
+            //    {
+            //        Id = 3,
+            //        UserName = "李四",
+            //        Department = "headquarter",
+            //        Position = "Administrator"
+            //    });
             #endregion
         }
     }

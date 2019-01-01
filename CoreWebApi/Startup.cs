@@ -79,8 +79,8 @@ namespace CoreWebApi
                     // ValidAudience = "The name of the audience",
 
                     ValidateLifetime = true,    // validate the expiration and not-before values in the token
-
-                    ClockSkew = TimeSpan.FromMinutes(5) // 5 minute tolerance for the expiration date
+                    
+                    ClockSkew = TimeSpan.FromMinutes(0) // n minute tolerance for the expiration date
                 };
             });
 
@@ -88,10 +88,9 @@ namespace CoreWebApi
             #endregion
 
             #region Database
-            var connectionString = @"Server=localhost;database=entrance;uid=myuser;pwd=mypass";
-            // var connectionString = @"Server=192.168.2.47;database=entrance;uid=myuser;pwd=mypass;";
+            var connectionString = @"Server=127.0.0.1;database=entrance;uid=myuser;pwd=mypass";
             services.AddDbContext<EntranceContext>(options => options.UseMySql(connectionString));
-            var connectionString2 = @"Server=localhost;database=defaultdb;uid=myuser;pwd=mypass";
+            var connectionString2 = @"Server=127.0.0.1;database=defaultdb;uid=myuser;pwd=mypass";
             services.AddDbContext<CompanyContext>(options => options.UseMySql(connectionString2));
             #endregion
 
@@ -99,8 +98,8 @@ namespace CoreWebApi
             services.AddScoped<IUnitOfWork<EntranceContext>, UnitOfWork<EntranceContext>>();
             services.AddScoped<IUnitOfWork<CompanyContext>, UnitOfWork<CompanyContext>>();
             services.AddScoped<IDeletedTokenRepository, DeletedTokenRepository>();
+            services.AddScoped<ILoginRepository, LoginRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<ICompanyRepository, CompanyRepository>();
             #endregion
 
             #region Caching
@@ -134,8 +133,12 @@ namespace CoreWebApi
 
             AutoMapper.Mapper.Initialize(config =>
             {
-                config.CreateMap<UserLoginDto, UserEntrance>();
-                config.CreateMap<UserCreateDto, UserEntrance>();
+                config.CreateMap<LoginDto, Login>();
+                config.CreateMap<LoginCreateDto, Login>();
+                config.CreateMap<LoginCreateDto, User>();
+                config.CreateMap<Login, UserInfoDto>();
+                config.CreateMap<User, UserInfoDto>();
+                config.CreateMap<UserModificationDto, User>();
             });
 
             app.UseMvc();

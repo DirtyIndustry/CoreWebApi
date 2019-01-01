@@ -1,56 +1,54 @@
 ﻿using CoreWebApi.Entities;
-using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CoreWebApi.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly EntranceContext _entranceContext;
-        private readonly IUnitOfWork<EntranceContext> _unitOfWork;
-        private readonly IUnitOfWork<CompanyContext> _companyUnitOfWork;
+        private readonly IUnitOfWork<CompanyContext> unitOfWork;
+        public IUnitOfWork<CompanyContext> UnitOfWork => unitOfWork;
 
-        public UserRepository(IUnitOfWork<EntranceContext> unitOfWork, IUnitOfWork<CompanyContext> companyUnitOfWork)
+        public UserRepository(IUnitOfWork<CompanyContext> unitOfWork)
         {
-            _entranceContext = unitOfWork.DbContext;
-            _unitOfWork = unitOfWork;
-            _companyUnitOfWork = companyUnitOfWork;
+            this.unitOfWork = unitOfWork;
         }
 
-        public bool VerifyUser(UserEntrance user)
+        public User GetUserInfo(string userName)
         {
-            return _entranceContext.UserEntrances.FirstOrDefault(u => u.UserName == user.UserName)?.Password == user.Password;
-            // return _entranceContext.Users.Any(u => u.UserName == username & u.Password == password);
-        }
-
-        public UserEntrance GetUserInfo(string username)
-        {
-            var userentrance = _entranceContext.UserEntrances.FirstOrDefault(u => u.UserName == username);
-            if (userentrance == null)
-            {
-                return null;
-            }
-            var company = _entranceContext.CompanyEntrances.FirstOrDefault(c => c.Id == userentrance.CompanyId);
-            var result = _entranceContext.UserEntrances.Include(u => u.Company).Include(u => u.User).FirstOrDefault(u => u.UserName == username);
-
-
-            System.Diagnostics.Debug.WriteLine(result);
-            return null;
-        }
-
-        public void AddUser(UserEntrance user)
-        {
-            //if (_entranceContext.Users.Any(u => u.UserName == userDto.UserName))
-            //{
-            //    return false;
-            //}
-            _entranceContext.UserEntrances.Add(user);
+            return unitOfWork.DbContext.Users.FirstOrDefault(u => u.UserName == userName);
         }
 
         public List<string> GetUserList()
         {
-            return _entranceContext.UserEntrances.Select(u => u.UserName).ToList();
+            return unitOfWork.DbContext.Users.Select(u => u.UserName).ToList();
+        }
+
+        public bool UserExists(string userName)
+        {
+            return unitOfWork.DbContext.Users.Any(u => u.UserName == userName);
+        }
+
+        public IEnumerable<User> GetUsersOfDepartment(string department)
+        {
+            return unitOfWork.DbContext.Users.Where(u => u.Department == department).ToList();
+        }
+
+        public IEnumerable<User> GetUsersOfPosition(string position)
+        {
+            return unitOfWork.DbContext.Users.Where(u => u.Position == position).ToList();
+        }
+
+        public void AddUser(User user)
+        {
+            unitOfWork.DbContext.Users.Add(user);
+        }
+
+        public void RemoveUser(User user)
+        {
+            unitOfWork.DbContext.Users.Remove(user);
         }
     }
 }

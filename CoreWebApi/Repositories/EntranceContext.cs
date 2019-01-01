@@ -9,8 +9,7 @@ namespace CoreWebApi.Repositories
 {
     public class EntranceContext: DbContext
     {
-        public DbSet<UserEntrance> UserEntrances { get; set; }
-        public DbSet<CompanyEntrance> CompanyEntrances { get; set; }
+        public DbSet<Login> Logins { get; set; }
         public DbSet<DeletedToken> DeletedTokens { get; set; }
 
         public EntranceContext(DbContextOptions<EntranceContext> options): base(options)
@@ -22,51 +21,34 @@ namespace CoreWebApi.Repositories
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region Configurations
-            modelBuilder.ApplyConfiguration(new UserEntranceConfiguration());
+            modelBuilder.ApplyConfiguration(new LoginConfiguration());
             modelBuilder.ApplyConfiguration(new DeletedTokenConfiguration());
-            modelBuilder.ApplyConfiguration(new CompanyEntranceConfiguration());
             #endregion
 
             #region SeedData
-            modelBuilder.Entity<UserEntrance>().HasData(
-                new UserEntrance
+            modelBuilder.Entity<Login>().HasData(
+                new Login
                 {
                     Id = 1,
                     UserName = "admin",
                     Password = "admin",
-                    CompanyId = 1
+                    Company = "DefaultCompany"
                 },
-                new UserEntrance
+                new Login
                 {
                     Id = 2,
                     UserName = "张三",
                     Password = "123",
-                    CompanyId = 2
+                    Company = "DefaultCompany"
                 },
-                new UserEntrance
+                new Login
                 {
                     Id = 3,
                     UserName = "李四",
                     Password = "123",
-                    CompanyId = 3
+                    Company = "DefaultCompany"
                 }
             );
-            modelBuilder.Entity<CompanyEntrance>().HasData(
-                new CompanyEntrance
-                {
-                    Id = 1,
-                    CompanyName = "Alibaba"
-                },
-                new CompanyEntrance
-                {
-                    Id = 2,
-                    CompanyName = "百度"
-                },
-                new CompanyEntrance
-                {
-                    Id = 3,
-                    CompanyName = "腾讯"
-                });
             #endregion
         }
     }

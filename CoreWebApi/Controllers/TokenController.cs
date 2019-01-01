@@ -23,17 +23,23 @@ namespace CoreWebApi.Controllers
     public class TokenController : ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
+        private readonly IUnitOfWork<CompanyContext> _unitOfWork;
         private readonly IUserRepository _userRepository;
+        private readonly ILoginRepository _loginRepository;
         private readonly IDeletedTokenRepository _deletedTokenRepository;
         private readonly IDeletedTokenCache _deletedTokenCache;
 
         public TokenController(ILogger<TokenController> logger,
+            IUnitOfWork<CompanyContext> unitOfWork,
             IUserRepository userRepository,
+            ILoginRepository loginRepository,
             IDeletedTokenRepository deletedTokenRepository,
             IDeletedTokenCache deletedTokenCache)
         {
             _logger = logger;
+            _unitOfWork = unitOfWork;
             _userRepository = userRepository;
+            _loginRepository = loginRepository;
             _deletedTokenRepository = deletedTokenRepository;
             _deletedTokenCache = deletedTokenCache;
         }
@@ -45,6 +51,9 @@ namespace CoreWebApi.Controllers
         {
             _logger.LogDebug("Get Values From Token.");
             var jti = User.FindFirst("jti")?.Value;
+            var company = User.FindFirst("company")?.Value;
+            var department = User.FindFirst("department")?.Value;
+            var position = User.FindFirst("position")?.Value;
             var expstring = User.FindFirst("exp")?.Value;
             var exp = TokenOperator.UnixTimeStampToDateTime(expstring);
             if (jti == null)
@@ -54,7 +63,7 @@ namespace CoreWebApi.Controllers
 
             // save jti (and username) into database
 
-            return Ok(jti);
+            return Ok(jti + ", expire:" + exp + ", company:" + company + ", department:" + department + ", position:" + position);
         }
 
         /// <summary>
@@ -94,12 +103,17 @@ namespace CoreWebApi.Controllers
         /// <param name="obj"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Post([FromBody] UserLoginDto userDto)
+        public IActionResult Post([FromBody] LoginDto userDto)
         {
-            var user = Mapper.Map<UserEntrance>(userDto);
-            if (_userRepository.VerifyUser(user))
+            var login = Mapper.Map<Login>(userDto);
+            if (_loginRepository.VerifyLogin(login))
             {
-                return new ObjectResult(TokenOperator.GenerateToken(user.UserName));
+                var logininfo = _loginRepository.GetLoginInfo(userDto.UserName);
+                _unitOfWork.ChangeDatabase(logininfo.Company);
+                var userinfo = _userRepository.GetUserInfo(userDto.UserName);
+                var tokeninfo = Mapper.Map<Login, UserInfoDto>(logininfo);
+                Mapper.Map(userinfo, tokeninfo);
+                return new ObjectResult(TokenOperator.GenerateToken(tokeninfo));
             }
             return BadRequest();
         }

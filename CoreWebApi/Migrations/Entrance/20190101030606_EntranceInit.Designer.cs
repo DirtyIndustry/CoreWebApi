@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace CoreWebApi.Migrations
+namespace CoreWebApi.Migrations.Entrance
 {
     [DbContext(typeof(EntranceContext))]
-    [Migration("20181231103520_AddCompanySeedData")]
-    partial class AddCompanySeedData
+    [Migration("20190101030606_EntranceInit")]
+    partial class EntranceInit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -18,22 +18,6 @@ namespace CoreWebApi.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            modelBuilder.Entity("CoreWebApi.Entities.Company", b =>
-                {
-                    b.Property<string>("Name")
-                        .ValueGeneratedOnAdd();
-
-                    b.HasKey("Name");
-
-                    b.ToTable("Companies");
-
-                    b.HasData(
-                        new { Name = "Alibaba" },
-                        new { Name = "百度" },
-                        new { Name = "腾讯" }
-                    );
-                });
 
             modelBuilder.Entity("CoreWebApi.Entities.DeletedToken", b =>
                 {
@@ -52,12 +36,13 @@ namespace CoreWebApi.Migrations
                     b.ToTable("DeletedTokens");
                 });
 
-            modelBuilder.Entity("CoreWebApi.Entities.User", b =>
+            modelBuilder.Entity("CoreWebApi.Entities.Login", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("CompanyName");
+                    b.Property<string>("Company")
+                        .IsRequired();
 
                     b.Property<string>("Password")
                         .IsRequired();
@@ -69,23 +54,13 @@ namespace CoreWebApi.Migrations
 
                     b.HasAlternateKey("UserName");
 
-                    b.HasIndex("CompanyName");
-
-                    b.ToTable("Users");
+                    b.ToTable("Logins");
 
                     b.HasData(
-                        new { Id = 1, CompanyName = "Alibaba", Password = "admin", UserName = "admin" },
-                        new { Id = 2, CompanyName = "百度", Password = "123", UserName = "张三" },
-                        new { Id = 3, CompanyName = "腾讯", Password = "123", UserName = "李四" }
+                        new { Id = 1, Company = "DefaultCompany", Password = "admin", UserName = "admin" },
+                        new { Id = 2, Company = "DefaultCompany", Password = "123", UserName = "张三" },
+                        new { Id = 3, Company = "DefaultCompany", Password = "123", UserName = "李四" }
                     );
-                });
-
-            modelBuilder.Entity("CoreWebApi.Entities.User", b =>
-                {
-                    b.HasOne("CoreWebApi.Entities.Company", "Company")
-                        .WithMany("Users")
-                        .HasForeignKey("CompanyName")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

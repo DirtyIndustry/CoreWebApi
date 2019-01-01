@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace CoreWebApi.Dtos
 {
-    public class UserCreateDto
+    public class LoginDto
     {
         public string UserName { get; set; }
         public string Password { get; set; }
-        public string CompanyName { get; set; }
     }
 }

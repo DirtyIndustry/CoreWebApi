@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace CoreWebApi.Entities
 {
-    public class CompanyEntrance
+    public class Login
     {
         public int Id { get; set; }
-        public string CompanyName { get; set; }
-        public ICollection<UserEntrance> Users { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
+        public string Company { get; set; }
     }
 }

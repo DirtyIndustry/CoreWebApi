@@ -1,22 +1,16 @@
-﻿using CoreWebApi.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using CoreWebApi.Entities;
 
 namespace CoreWebApi.Repositories
 {
     public interface IUserRepository
     {
-        /// <summary>
-        /// Verifies user's validness by checking it's password.
-        /// </summary>
-        /// <param name="username">User's login identity</param>
-        /// <param name="password">User's password</param>
-        /// <returns>Validity of the user</returns>
-        bool VerifyUser(UserEntrance user);
-
-        UserEntrance GetUserInfo(string username);
-
-        void AddUser(UserEntrance user);
-
+        void AddUser(User user);
+        User GetUserInfo(string userName);
         List<string> GetUserList();
+        IEnumerable<User> GetUsersOfDepartment(string department);
+        IEnumerable<User> GetUsersOfPosition(string position);
+        void RemoveUser(User user);
+        bool UserExists(string userName);
     }
 }

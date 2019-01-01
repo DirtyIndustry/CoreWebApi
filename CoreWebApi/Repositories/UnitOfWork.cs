@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace CoreWebApi.Repositories
 {
-    public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbContext
+    public class UnitOfWork<TContext> : IUnitOfWork<TContext>, IDisposable where TContext : DbContext
     {
-        private readonly TContext _context;
+        private TContext _context;
         public UnitOfWork(TContext context)
         {
             _context = context;
@@ -28,10 +28,11 @@ namespace CoreWebApi.Repositories
             }
             else
             {
-                var connectionString = Regex.Replace(connection.ConnectionString.Replace(" ", ""), @"(?<=[Dd]atabase=)\w+(?=;)", database, RegexOptions.Singleline);
+                var connectionString = @"Server=127.0.0.1;database=defaultdb;uid=myuser;pwd=mypass";
+                connectionString = Regex.Replace(connectionString.Replace(" ", ""), @"(?<=[Dd]atabase=)\w+(?=;)", database, RegexOptions.Singleline);
                 connection.ConnectionString = connectionString;
+                _context = DbContextFactory.Create(connectionString) as TContext;
             }
-
             var items = _context.Model.GetEntityTypes();
             foreach(var item in items)
             {
@@ -49,6 +50,19 @@ namespace CoreWebApi.Repositories
         public bool Save()
         {
             return _context.SaveChanges() >= 0;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _context.Dispose();
+            }
         }
     }
 }
