@@ -30,23 +30,10 @@ namespace CoreWebApi.Repositories
                 new Login
                 {
                     Id = 1,
-                    UserName = "admin",
-                    Password = "admin",
-                    Company = "DefaultCompany"
-                },
-                new Login
-                {
-                    Id = 2,
-                    UserName = "张三",
-                    Password = "123",
-                    Company = "DefaultCompany"
-                },
-                new Login
-                {
-                    Id = 3,
-                    UserName = "李四",
-                    Password = "123",
-                    Company = "DefaultCompany"
+                    UserName = "root",
+                    Password = "root",
+                    Company = "DefaultCompany",
+                    Role = "root"
                 }
             );
             #endregion

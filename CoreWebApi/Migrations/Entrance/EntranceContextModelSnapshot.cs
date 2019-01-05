@@ -45,6 +45,9 @@ namespace CoreWebApi.Migrations.Entrance
                     b.Property<string>("Password")
                         .IsRequired();
 
+                    b.Property<string>("Role")
+                        .IsRequired();
+
                     b.Property<string>("UserName")
                         .IsRequired();
 
@@ -55,9 +58,7 @@ namespace CoreWebApi.Migrations.Entrance
                     b.ToTable("Logins");
 
                     b.HasData(
-                        new { Id = 1, Company = "DefaultCompany", Password = "admin", UserName = "admin" },
-                        new { Id = 2, Company = "DefaultCompany", Password = "123", UserName = "张三" },
-                        new { Id = 3, Company = "DefaultCompany", Password = "123", UserName = "李四" }
+                        new { Id = 1, Company = "DefaultCompany", Password = "root", Role = "root", UserName = "root" }
                     );
                 });
 #pragma warning restore 612, 618

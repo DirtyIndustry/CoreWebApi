@@ -1,4 +1,4 @@
-#region 依赖注入
+﻿#region 依赖注入
 public class ProductController
 {
     // Controller内使用的变量为interface而不是class
@@ -41,5 +41,23 @@ public class ProductController : Controller
     }
 }
 #endregion
+
+// 允许跨域访问
+// 在Startup.cs中
+public void ConfigureServices(IServiceCollection services) {
+    services.AddCors(options => options.AddPolicy("cors" /*策略名可自定义*/, policy => policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().AllowAnyOrigin()));
+
+    // 允许单个网址：
+    services.AddCors();
+}
+
+public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+    app.UseCors("cors"); // 必须在UseMvc之前, 策略名与之前自定义的相同
+
+    // 允许单个网址
+    app.UseCors(options => options.WithOrigins("http://127.0.0.1:8081"));
+
+    app.UseMvc();
+}
 
 

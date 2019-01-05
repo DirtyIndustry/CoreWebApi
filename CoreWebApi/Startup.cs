@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CoreWebApi.Authorization;
 using CoreWebApi.Caching;
 using CoreWebApi.Caching.Redis;
 using CoreWebApi.Dtos;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace CoreWebApi
 {
@@ -32,6 +34,10 @@ namespace CoreWebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            
+            #region CORS
+            services.AddCors(options => options.AddPolicy("cors", policy => policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().AllowAnyOrigin()));
+            #endregion
 
             #region Swagger
             services.AddSwaggerGen(c =>
@@ -90,7 +96,7 @@ namespace CoreWebApi
             #region Database
             var connectionString = @"Server=127.0.0.1;database=entrance;uid=myuser;pwd=mypass";
             services.AddDbContext<EntranceContext>(options => options.UseMySql(connectionString));
-            var connectionString2 = @"Server=127.0.0.1;database=defaultdb;uid=myuser;pwd=mypass";
+            var connectionString2 = @"Server=127.0.0.1;database=DefaultCompany;uid=myuser;pwd=mypass";
             services.AddDbContext<CompanyContext>(options => options.UseMySql(connectionString2));
             #endregion
 
@@ -129,6 +135,8 @@ namespace CoreWebApi
 
             // entranceContext.EnsureSeedDataForContext();
 
+            app.UseMiddleware<JwtInCookieMiddleware>();
+            // app.UseMiddleware<JwtReissueMiddleware>();
             app.UseAuthentication();
 
             AutoMapper.Mapper.Initialize(config =>
@@ -140,6 +148,8 @@ namespace CoreWebApi
                 config.CreateMap<User, UserInfoDto>();
                 config.CreateMap<UserModificationDto, User>();
             });
+
+            app.UseCors("cors");
 
             app.UseMvc();
 

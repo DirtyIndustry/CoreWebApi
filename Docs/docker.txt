@@ -82,6 +82,8 @@ vi /etc/httpd/conf.d/welcome.conf
     ErrorDocument 403 /.noindex.html
 </LocationMatch>
 重启httpd生效
+卸载apache
+# yum erase httpd.x86_64  
 
 3. 安装php
 yum install php php-mysql php-pdo php-gd php-mbstring
@@ -152,3 +154,27 @@ apt install ufw
 # ufw enable | disable | reload | reset
 # ufw allow http | 80/tcp
 # ufw allow https | 443/tcp
+
+CentOS 6 安装Nginx
+1. 安装依赖
+yum install gcc-c++
+yum install pcre-devel
+yum install zlib-devel
+
+2. 下载解压
+wget http://nginx.org/download/nginx-1.15.8.tar.gz
+tar -zxvf nginx-1.15.8.tar.gz
+
+3. 安装
+cd nginx-1.15.8
+设置安装目录为/usr/local/nginx
+./configure --prefix=/usr/local/nginx
+编译安装
+make
+make install
+
+4. 启动nginx服务
+cd /usr/local/nginx
+./sbin/nginx
+查看进程
+ps -ef | grep nginx

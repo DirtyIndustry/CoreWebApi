@@ -9,11 +9,13 @@ namespace CoreWebApi.Repositories
 {
     public class CompanyContext: DbContext
     {
+        private string database;
         public DbSet<User> Users { get; set; }
 
         public CompanyContext(DbContextOptions<CompanyContext> options) : base(options)
         {
             //Database.EnsureCreated();
+            database = Database.GetDbConnection().Database;
             Database.Migrate();
         }
 
@@ -24,28 +26,18 @@ namespace CoreWebApi.Repositories
             #endregion
 
             #region Seed Data
-            //modelBuilder.Entity<User>().HasData(
-            //    new User
-            //    {
-            //        Id = 1,
-            //        UserName = "admin",
-            //        Department = "headquarter",
-            //        Position = "CEO"
-            //    },
-            //    new User
-            //    {
-            //        Id = 2,
-            //        UserName = "张三",
-            //        Department = "headquarter",
-            //        Position = "Boss"
-            //    },
-            //    new User
-            //    {
-            //        Id = 3,
-            //        UserName = "李四",
-            //        Department = "headquarter",
-            //        Position = "Administrator"
-            //    });
+            if (database == "DefaultCompany" | database == "")
+            {
+                modelBuilder.Entity<User>().HasData(
+                    new User
+                    {
+                        Id = 1,
+                        UserName = "root",
+                        Department = "root",
+                        Position = "root"
+                    });
+            }
+
             #endregion
         }
     }

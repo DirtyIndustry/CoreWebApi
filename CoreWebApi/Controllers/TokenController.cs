@@ -94,7 +94,7 @@ namespace CoreWebApi.Controllers
             //{
             //    return StatusCode(500, "将token失效信息存入数据库时出错");
             //}
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -111,9 +111,20 @@ namespace CoreWebApi.Controllers
                 var logininfo = _loginRepository.GetLoginInfo(userDto.UserName);
                 _unitOfWork.ChangeDatabase(logininfo.Company);
                 var userinfo = _userRepository.GetUserInfo(userDto.UserName);
+                if (userinfo == null)
+                {
+                    return StatusCode(500, "用户信息缺失");
+                }
                 var tokeninfo = Mapper.Map<Login, UserInfoDto>(logininfo);
                 Mapper.Map(userinfo, tokeninfo);
-                return new ObjectResult(TokenOperator.GenerateToken(tokeninfo));
+                try
+                {
+                    return new ObjectResult(TokenOperator.GenerateToken(tokeninfo));
+                }
+                catch(Exception e)
+                {
+                    return StatusCode(500, "生成令牌时出错: " + e.Message);
+                }
             }
             return BadRequest();
         }

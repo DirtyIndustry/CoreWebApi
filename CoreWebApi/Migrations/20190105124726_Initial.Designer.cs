@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CoreWebApi.Migrations
 {
     [DbContext(typeof(CompanyContext))]
-    [Migration("20190101030416_CompanyInit")]
-    partial class CompanyInit
+    [Migration("20190105124726_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,12 +35,6 @@ namespace CoreWebApi.Migrations
                     b.HasAlternateKey("UserName");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new { Id = 1, Department = "headquarter", Position = "CEO", UserName = "admin" },
-                        new { Id = 2, Department = "headquarter", Position = "Boss", UserName = "张三" },
-                        new { Id = 3, Department = "headquarter", Position = "Administrator", UserName = "李四" }
-                    );
                 });
 #pragma warning restore 612, 618
         }
