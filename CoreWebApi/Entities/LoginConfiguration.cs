@@ -15,7 +15,7 @@ namespace CoreWebApi.Entities
             builder.HasAlternateKey(x => x.UserName);
             builder.Property(x => x.Password).IsRequired();
             builder.Property(x => x.Company).IsRequired();
-            builder.Property(x => x.Role).IsRequired();
+            builder.Property(x => x.Type).IsRequired();
         }
     }
 }

@@ -16,7 +16,7 @@ namespace CoreWebApi.Authorization
             {
                 // new Claim(ClaimTypes.Name, username),
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.Role, user.Type),
                 new Claim(JwtRegisteredClaimNames.Iss, "Core Web Api"),
                 // new Claim(JwtRegisteredClaimNames.Aud, "Web Application"),
                 // new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),

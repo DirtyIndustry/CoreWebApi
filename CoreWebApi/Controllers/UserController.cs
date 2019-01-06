@@ -15,7 +15,7 @@ namespace CoreWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController: ControllerBase
+    public class UserController : ControllerBase
     {
         private const string Default_Department = "headquarter";
         private const string Default_Position = "Boss";
@@ -74,6 +74,14 @@ namespace CoreWebApi.Controllers
             }
         }
 
+        [HttpGet("exist/{username}")]
+        public IActionResult GetUserExist(string username)
+        {
+            var loginexist = _loginRepository.LoginExists(username);
+
+            return Ok(loginexist);
+        }
+
         /// <summary>
         /// User Registration
         /// </summary>
@@ -89,12 +97,12 @@ namespace CoreWebApi.Controllers
 
             var login = Mapper.Map<Login>(loginCreateDto);
             var user = Mapper.Map<User>(loginCreateDto);
-            
-            if (!_loginRepository.CompanyExists(login.Company))
-            {
-                user.Department = Default_Department;
-                user.Position = Default_Position;
-            }
+
+            //if (!_loginRepository.CompanyExists(login.Company))
+            //{
+            //    user.Department = Default_Department;
+            //    user.Position = Default_Position;
+            //}
 
             _loginRepository.AddLogin(login);
             _unitOfWorkCompany.ChangeDatabase(login.Company);
@@ -227,7 +235,7 @@ namespace CoreWebApi.Controllers
         [Authorize(Policy = "Jti")]
         public IActionResult PatchPassword([FromBody] LoginModificationDto loginModificationDto)
         {
-            if(loginModificationDto == null)
+            if (loginModificationDto == null)
             {
                 return BadRequest();
             }

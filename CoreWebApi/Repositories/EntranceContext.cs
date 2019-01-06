@@ -33,7 +33,7 @@ namespace CoreWebApi.Repositories
                     UserName = "root",
                     Password = "root",
                     Company = "DefaultCompany",
-                    Role = "root"
+                    Type = "root"
                 }
             );
             #endregion
