@@ -3,11 +3,13 @@ using CoreWebApi.Authorization;
 using CoreWebApi.Caching;
 using CoreWebApi.Dtos;
 using CoreWebApi.Entities;
+using CoreWebApi.Helpers;
 using CoreWebApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -124,6 +126,46 @@ namespace CoreWebApi.Controllers
                 catch(Exception e)
                 {
                     return StatusCode(500, "生成令牌时出错: " + e.Message);
+                }
+            }
+            return BadRequest();
+        }
+
+        [HttpPost("encrypt")]
+        public IActionResult PostEncrypt([FromBody] EncryptedString encryptedString)
+        {
+            LoginDto loginDto;
+            try
+            {
+                string origintext = Encryptor.DecryptString_Aes(encryptedString.ciphertext, Encryptor.key);
+                loginDto = JsonConvert.DeserializeObject<LoginDto>(origintext);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+            if (loginDto != null)
+            {
+                Login login = Mapper.Map<Login>(loginDto);
+                if (_loginRepository.VerifyLogin(login))
+                {
+                    var logininfo = _loginRepository.GetLoginInfo(loginDto.UserName);
+                    _unitOfWork.ChangeDatabase(logininfo.Company);
+                    var userinfo = _userRepository.GetUserInfo(loginDto.UserName);
+                    if (userinfo == null)
+                    {
+                        return StatusCode(500, "用户信息缺失");
+                    }
+                    var tokeninfo = Mapper.Map<Login, UserInfoDto>(logininfo);
+                    Mapper.Map(userinfo, tokeninfo);
+                    try
+                    {
+                        return new ObjectResult(TokenOperator.GenerateToken(tokeninfo));
+                    }
+                    catch (Exception e)
+                    {
+                        return StatusCode(500, "生成令牌时出错：" + e.Message);
+                    }
                 }
             }
             return BadRequest();
