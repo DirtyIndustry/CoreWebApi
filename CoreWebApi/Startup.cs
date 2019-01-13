@@ -142,10 +142,12 @@ namespace CoreWebApi
             AutoMapper.Mapper.Initialize(config =>
             {
                 config.CreateMap<LoginDto, Login>();
-                config.CreateMap<LoginCreateDto, Login>();
-                config.CreateMap<LoginCreateDto, User>();
-                config.CreateMap<Login, UserInfoDto>();
-                config.CreateMap<User, UserInfoDto>();
+                config.CreateMap<Login, LoginCreateDto> ();
+                config.CreateMap<User, LoginCreateDto> ();
+                config.CreateMap<Login, UserInfoDto> ();
+                config.CreateMap<User, UserInfoDto> ();
+                config.CreateMap<LoginCreateDto, UserInfoDto>();
+                config.CreateMap<LoginModificationDto, Login>();
                 config.CreateMap<UserModificationDto, User>();
             });
 

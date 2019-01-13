@@ -108,8 +108,7 @@ namespace CoreWebApi.Controllers
             _unitOfWorkCompany.ChangeDatabase(login.Company);
             _userRepository.AddUser(user);
 
-            var userinfo = Mapper.Map<UserInfoDto>(login);
-            Mapper.Map(user, userinfo);
+            var userinfo = Mapper.Map<UserInfoDto>(loginCreateDto);
 
             if (_unitOfWorkEntrance.Save() & _unitOfWorkCompany.Save())
             {

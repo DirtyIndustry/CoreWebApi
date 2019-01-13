@@ -9,14 +9,14 @@ namespace CoreWebApi.Authorization
 {
     public class TokenOperator
     {
-        public static string GenerateToken(UserInfoDto user)
+        public static string GenerateToken(LoginCreateDto login)
         {
-            var jti = user.UserName + DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
+            var jti = login.UserName + DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
             var claims = new Claim[]
             {
                 // new Claim(ClaimTypes.Name, username),
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                new Claim(ClaimTypes.Role, user.Type),
+                new Claim(JwtRegisteredClaimNames.Sub, login.UserName),
+                new Claim(ClaimTypes.Role, login.Type),
                 new Claim(JwtRegisteredClaimNames.Iss, "Core Web Api"),
                 // new Claim(JwtRegisteredClaimNames.Aud, "Web Application"),
                 // new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
@@ -24,9 +24,9 @@ namespace CoreWebApi.Authorization
                 // new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Exp, DateTimeOffset.Now.AddMinutes(1).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
-                new Claim("company", user.Company),
-                new Claim("department", user.Department),
-                new Claim("position", user.Position)
+                new Claim("company", login.Company),
+                new Claim("department", login.Department),
+                new Claim("position", login.Position)
             };
 
             var token = new JwtSecurityToken(

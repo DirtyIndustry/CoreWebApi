@@ -117,7 +117,7 @@ namespace CoreWebApi.Controllers
                 {
                     return StatusCode(500, "用户信息缺失");
                 }
-                var tokeninfo = Mapper.Map<Login, UserInfoDto>(logininfo);
+                var tokeninfo = Mapper.Map<Login, LoginCreateDto>(logininfo);
                 Mapper.Map(userinfo, tokeninfo);
                 try
                 {
@@ -156,7 +156,7 @@ namespace CoreWebApi.Controllers
                     {
                         return StatusCode(500, "用户信息缺失");
                     }
-                    var tokeninfo = Mapper.Map<Login, UserInfoDto>(logininfo);
+                    var tokeninfo = Mapper.Map<Login, LoginCreateDto>(logininfo);
                     Mapper.Map(userinfo, tokeninfo);
                     try
                     {

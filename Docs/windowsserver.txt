@@ -1,0 +1,149 @@
+#组策略
+gpedit.msc
+登陆密码复杂度和时效
+Computer Configuration => Windows Settings => Security Settings => Account Policies => Password Policy
+    Password must meet complexity requirements (Disabled)
+    Maximum password age (0)
+
+按Ctrl+Alt+Del登录
+Computer Configuration => Windows Settings => Security Settings => Local Policies => Security Options
+    Interactive logon: Do not require CTRL+ALT+DEL (Enabled)
+
+关机时间追踪
+Computer Configuration => Administrative Templates => System
+    Display Shutdown Event Tracker (Disabled)
+
+管理员账户启用UAC (不建议)
+Computer Configuration => Windows Settings => Security Settings => Local Policies => Security Options
+    User Account Control: Admin Approval Mode for the Built-in Administrator account (Enabled)
+
+普通用户可以关机
+Conputer Configuration => Windows Settings => Security Settings => Local Policies => User Rights Assignment
+    Shutdown the system (添加Users用户组)
+
+#添加服务器角色与功能
+Media Foundation
+Windows Search Service 索引功能
+Windows Server Backup 服务器备份
+Wireless LAN Service 无线网服务
+
+#服务
+Windows Audio
+Windows Audio Endpoint Builder 声音功能
+Windows Search 索引功能
+Optimize drives 磁盘整理功能
+
+#系统属性
+System => System Info => Advanced system settings
+Perfomance Settings:
+    Advanced Tab: Adjust for best performance of: (Programs)
+    Data Execution Prevention: (Turn on DEP for essential Windows programs and services only)
+
+#控制面板
+Set Timezone
+Set Current language for non-Unicode programs: (Chinese(Simplified, China))
+
+#系统激活
+Microsoft Toolkit
+Windows Server 2019 Datacenter WMDGN-G9PQG-XVVXX-R3X43-63DFG
+Windows Server 2019 Standard N69G4-B89J2-4G8F4-WWYCC-J464C
+Windows Server 2019 Essentials WVDHN-86M7X-466P6-VHXV7-YY726
+--------------------- 
+slmgr /upk
+slmgr /ipk WMDGN-G9PQG-XVVXX-R3X43-63DFG
+slmgr /skms zh.us.to
+slmgr /ato (需联网)
+
+屏幕亮度调节
+注册表
+HKEY_LOCAL_MACHINE => SYSTEM => ControlSet001 => Control => Class => {4d36e968-e325-11ce-bfc1-08002be10318}
+0000或0001文件夹中添加或修改
+    KMD_EnableBrightnessInterface2 REG_DWORD 0
+
+自动锁屏
+注册表
+HKEY_LOCAL_MACHINE => SYSTEM => CurrentControlSet => Control => Power => PowerSettings =>
+7516b95f-f776-4464-8c53-06167f40cc99 => 8EC4B3A5-6868-48c2-BE75-4F3044BE88A7
+    Attributes 2
+右击桌面 => Personalize => Lock screen => Screen saver settings
+    On resume, display logon screen (Check)
+
+安装Docker
+Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
+Install-Package -Name docker -ProviderName DockerMsftProvider -Force -RequiredVersion 18.09.1
+如果出现SHA256校验错误
+    Start-BitsTransfer -Source https://dockermsft.blob.core.windows.net/dockercontainer/docker-18-09-1.zip -Destination /docker.zip
+    Get-FileHash -Path /docker.zip -Algorithm SHA256
+    cp /docker.zip C:\Users\Administrator\AppData\Local\Temp\DockerMsftProvider
+    cd C:\Users\Administrator\AppData\Local\Temp\DockerMsftProvider\
+    cp .\docker.zip Docker-18-09-1.zip
+    Install-Package -Name docker -ProviderName DockerMsftProvider -Verbose
+启动Docker服务
+Start-Service docker
+Restart-Service docker
+下载Windows基础镜像
+docker image pull mcr.microsoft.com/windows/servercore:1809
+docker image pull mcr.microsoft.com/windows/nanoserver:1809 版本号应该与本机操作系统版本号一致
+下载.net核心镜像
+docker image pull microsoft/dotnet:2.1-sdk-nanoserver-1809
+docker image pull microsoft/dotnet:2.1-aspnetcore-runtime-nanoserver-1809
+
+在C://ProgramData/docker/config/目录下建立daemon.json
+开启实验模式
+{
+    "experimental": true
+}
+设置默认DNS
+{
+    "dns": ["114.114.114.114", "117.50.11.11"]
+}
+设置国内加速镜像
+{
+    "registry-mirrors": ["https://6oo4yzy1.mirror.aliyuncs.com"]
+}
+
+安装LinuxKit/Lcow
+https://github.com/linuxkit/lcow/releases
+下载zip压缩包 将内容解压到
+C:\Program Files\Linux Containers\
+命令行操作
+Remove-Item "$env:ProgramFiles\Linux Containers" -Force -Recurse
+Invoke-WebRequest "https://github.com/linuxkit/lcow/releases/download/版本号/release.zip" -UseBasicParsing -OutFile release.zip
+Expand-Archive release.zip -DestinationPath "$Env:ProgramFiles\Linux Containers\."
+rm release.zip
+
+下载linux镜像
+docker pull --platform linux centos:latest
+
+安装Docker Compose
+https://github.com/docker/compose/releases
+下载对应平台的exe文件 重命名并复制到
+C:\Program Files\Docker\docker-compose.exe
+命令行操作
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 // 设置powershell https通信协议为TLS1.2
+Invoke-WebRequest "https://github.c =>om/docker/compose/releases/download/版本号/docker-compose-Windows-x86_64.exe" -UseBasicParsing -OutFile $Env:ProgramFiles\docker\docker-compose.exe
+
+卸载docker
+docker swarm leave --force // 退出swarm
+docker rm -f $(docker ps --all --quiet) // 删除所有容器
+docker system prune --all --volumes // 清除所有container network volume image buildcache
+uninstall-package -name docker -ProviderName DockerMsftProvider
+uninstall-module -name DockerMsftProvider
+Get-HNSNetwork | Remove-HNSNetwork // 删除windows网络
+Remove-Item -Path "C:\ProgramData\Docker" -Recurse -Force // 删除docker残留文件
+
+安装Docker预览版
+Install-Module DockerProvider
+Install-Package docker -ProviderName DockerProvider -RequiredVersion preview
+启用LCOW支持
+[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
+关闭LCOW支持
+[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", $null, "Machine")
+
+端口占用
+netsh winsock reset
+
+未知网络设为私有
+gpedit.msc
+Computer Configuration => Windows Settings => Security Settings => Network List Manager Policies
+Unidentified Networks (private)

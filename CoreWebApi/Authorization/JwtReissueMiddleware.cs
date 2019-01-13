@@ -52,7 +52,7 @@ namespace CoreWebApi.Authorization
                             Login logininfo = loginRepository.GetLoginInfo(login.UserName);
                             unitOfWork.ChangeDatabase(logininfo.Company);
                             User userinfo = userRepository.GetUserInfo(loginDto.UserName);
-                            UserInfoDto tokeninfo = Mapper.Map<Login, UserInfoDto>(logininfo);
+                            LoginCreateDto tokeninfo = Mapper.Map<Login, LoginCreateDto>(logininfo);
                             Mapper.Map(userinfo, tokeninfo);
                             string newtoken = TokenOperator.GenerateToken(tokeninfo);
                             context.Request.Headers[auth] = "Bearer " + newtoken;
