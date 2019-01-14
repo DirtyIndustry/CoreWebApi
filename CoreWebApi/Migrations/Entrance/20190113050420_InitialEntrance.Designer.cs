@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CoreWebApi.Migrations.Entrance
 {
     [DbContext(typeof(EntranceContext))]
-    [Migration("20190105124735_Initial")]
-    partial class Initial
+    [Migration("20190113050420_InitialEntrance")]
+    partial class InitialEntrance
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -47,7 +47,7 @@ namespace CoreWebApi.Migrations.Entrance
                     b.Property<string>("Password")
                         .IsRequired();
 
-                    b.Property<string>("Role")
+                    b.Property<string>("Type")
                         .IsRequired();
 
                     b.Property<string>("UserName")
@@ -60,7 +60,7 @@ namespace CoreWebApi.Migrations.Entrance
                     b.ToTable("Logins");
 
                     b.HasData(
-                        new { Id = 1, Company = "DefaultCompany", Password = "root", Role = "root", UserName = "root" }
+                        new { Id = 1, Company = "DefaultCompany", Password = "root", Type = "root", UserName = "root" }
                     );
                 });
 #pragma warning restore 612, 618

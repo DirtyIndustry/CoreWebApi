@@ -59,6 +59,21 @@ namespace CoreWebApi.Controllers
 
         }
 
+        [HttpGet("me")]
+        [Authorize(Policy = "Jti")]
+        public IActionResult GetMe()
+        {
+            var userName = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            if (userName == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Get(userName);
+            }
+        }
+
         [HttpGet("all")]
         [Authorize(Policy = "Jti")]
         public IActionResult GetAll()

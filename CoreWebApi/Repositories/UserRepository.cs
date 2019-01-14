@@ -18,6 +18,7 @@ namespace CoreWebApi.Repositories
 
         public User GetUserInfo(string userName)
         {
+            var count = unitOfWork.DbContext.Users.Count();
             return unitOfWork.DbContext.Users.FirstOrDefault(u => u.UserName == userName);
         }
 

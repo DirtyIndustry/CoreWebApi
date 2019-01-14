@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CoreWebApi.Migrations
 {
     [DbContext(typeof(CompanyContext))]
-    [Migration("20190105124726_Initial")]
-    partial class Initial
+    [Migration("20190113050357_InitialCompany")]
+    partial class InitialCompany
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

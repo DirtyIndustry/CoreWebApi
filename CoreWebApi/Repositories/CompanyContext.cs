@@ -17,6 +17,25 @@ namespace CoreWebApi.Repositories
             //Database.EnsureCreated();
             database = Database.GetDbConnection().Database;
             Database.Migrate();
+
+            #region Seed Data
+            if (database == "DefaultCompany")
+            {
+                if (!this.Users.Any())
+                {
+                    this.Users.Add(
+                        new User
+                        {
+                            Id = 1,
+                            UserName = "root",
+                            Department = "root",
+                            Position = "root"
+                        });
+                    SaveChanges();
+                }
+            }
+            #endregion
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,21 +43,7 @@ namespace CoreWebApi.Repositories
             #region Configurations
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             #endregion
-
-            #region Seed Data
-            if (database == "DefaultCompany" | database == "")
-            {
-                modelBuilder.Entity<User>().HasData(
-                    new User
-                    {
-                        Id = 1,
-                        UserName = "root",
-                        Department = "root",
-                        Position = "root"
-                    });
-            }
-
-            #endregion
+            
         }
     }
 }

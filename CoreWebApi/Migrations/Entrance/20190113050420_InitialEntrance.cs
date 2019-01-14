@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CoreWebApi.Migrations.Entrance
 {
-    public partial class Initial : Migration
+    public partial class InitialEntrance : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -32,7 +32,7 @@ namespace CoreWebApi.Migrations.Entrance
                     UserName = table.Column<string>(nullable: false),
                     Password = table.Column<string>(nullable: false),
                     Company = table.Column<string>(nullable: false),
-                    Role = table.Column<string>(nullable: false)
+                    Type = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -42,7 +42,7 @@ namespace CoreWebApi.Migrations.Entrance
 
             migrationBuilder.InsertData(
                 table: "Logins",
-                columns: new[] { "Id", "Company", "Password", "Role", "UserName" },
+                columns: new[] { "Id", "Company", "Password", "Type", "UserName" },
                 values: new object[] { 1, "DefaultCompany", "root", "root", "root" });
         }
 

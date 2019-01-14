@@ -144,6 +144,8 @@ namespace CoreWebApi
                 config.CreateMap<LoginDto, Login>();
                 config.CreateMap<Login, LoginCreateDto> ();
                 config.CreateMap<User, LoginCreateDto> ();
+                config.CreateMap<LoginCreateDto, Login>();
+                config.CreateMap<LoginCreateDto, User>();
                 config.CreateMap<Login, UserInfoDto> ();
                 config.CreateMap<User, UserInfoDto> ();
                 config.CreateMap<LoginCreateDto, UserInfoDto>();
