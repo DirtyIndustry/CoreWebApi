@@ -1,0 +1,249 @@
+CentOS 7 安装LAMP
+1. 安装firewalld
+yum install firewalld
+systemctl start firewalld
+systemctl enable firewalld
+开放80端口
+firewall-cmd --permanent --add-service=http
+开放3306端口
+firewall-cmd --permanent --add-service=mysql
+systemctl restart firewalld
+# firewall-cmd --state
+# firewall-cmd --list-all
+# firewall-cmd --list-interfaces
+# firewall-cmd --get-service
+# firewall-cmd --query-service service_name
+# firewall-cmd --add-port=8080/tcp
+
+2. 安装apache
+yum install httpd
+systemctl status|start|stop|restart|reload httpd
+systemctl enable httpd
+启用浏览文件夹功能
+vi /etc/httpd/conf.d/welcome.conf
+<LocationMatch "^/+$">
+    Option -Indexes(改为Option +Indexes)
+    ErrorDocument 403 /.noindex.html
+</LocationMatch>
+重启httpd生效
+卸载apache
+# yum erase httpd.x86_64  
+
+3. 安装php
+yum install php php-mysql php-pdo php-gd php-mbstring
+首页显示php状态页
+# echo "<?php phpinfo(); ?>" > /var/www/html/info.php
+# systemctl restart httpd
+修改默认时区
+vi /etc/php.ini
+date.timezone = Asia/Shanghai
+重启httpd生效
+
+4. 安装mariaDB
+yum install mariadb-server mariadb
+systemctl start mariadb
+systemctl enable mariadb
+mysql_secure_installation
+(设置数据库root密码, 禁用远程root登录, 移除test数据库, 禁用匿名登录等)
+修改字符集为UTF8
+vi /etc/my.cnf
+[client]
+...
+default-character-set=utf8
+...
+[mysql]
+...
+default-character-set=utf8
+...
+[mysqld]
+...
+collation-server=utf8_unicode_ci
+init-connect='SET NAMES utf8'
+character-set-server=utf8
+...
+允许从其他机器访问数据库
+vi /etc/mysql/mysql.conf.d/mysqld.cnf
+注释掉bind-address=127.0.0.1
+#instead of skip-networking the default is now to listen only on
+#localhost which is more compatible and is not less secure.
+#bind-address=127.0.0.1
+
+5. 安装phpMyAdmin
+yum install epel-release
+yum install phpmyadmin
+修改允许访问的ip
+vi /etc/httpd/conf.d/phpMyAdmin.conf
+注释掉两处
+# Apache 2.4
+<RequireAny>
+    Require ip 127.0.0.1
+    Require ip ::1
+</RequireAny>
+替换为Require all granted
+重启httpd以生效
+#Ubuntu建立/var/www/html下的软连接
+ln -s /usr/share/phpmyadmin /var/www/html/phpmyadmin
+
+Ubuntu 18.04 安装LAMP
+1. 系统准备
+apt update && apt upgrade
+如果需要systemctl
+apt install systemd
+如果需要防火墙
+apt install ufw
+# ufw status verbose
+# ufw default deny incoming
+# ufw default allow outgoing
+# ufw allow ssh
+# ufw enable | disable | reload | reset
+# ufw allow http | 80/tcp
+# ufw allow https | 443/tcp
+
+CentOS 6 安装Nginx
+1. 安装依赖
+yum install gcc-c++
+yum install pcre-devel
+yum install zlib-devel
+
+2. 下载解压
+wget http://nginx.org/download/nginx-1.15.8.tar.gz
+tar -zxvf nginx-1.15.8.tar.gz
+
+3. 安装
+cd nginx-1.15.8
+设置安装目录为/usr/local/nginx
+./configure --prefix=/usr/local/nginx
+编译安装
+make
+make install
+
+4. 启动nginx服务
+cd /usr/local/nginx
+./sbin/nginx
+查看进程
+ps -ef | grep nginx
+
+Linux配置ssh使用key登录
+1. 生成密钥
+ssh-keygen -b 2048 -t rsa
+生成的密钥文件在/root/.ssh/目录下
+id_rsa
+id_rsa.pub
+2. 保存私钥
+cd /root/.ssh
+cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+chmod 600 authorized_keys
+3. 配置ssh
+vi /etc/ssh/sshd_config
+反注释以下三行:
+RSAAuthentication yes
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+4. 重启ssh
+service sshd restart
+
+CentOS安装V2Ray
+如果没有wget, 首先安装wget
+yum -y install wget
+下载自动安装脚本
+wget https://install.direct/go.sh
+安装unzip
+yum install zip unzip
+执行安装脚本
+bash go.sh
+启动v2ray服务
+systemctl start v2ray
+配置文件
+/etc/v2ray/config.json
+{
+    "log" : {
+        "access": "/var/log/v2ray/access.log",
+        "error": "/var/log/v2ray/error.log",
+        "loglevel": "warning"
+    },
+    "inbound": [
+        {
+            "port": 443,
+            "protocol": "vmess",
+            "settings": {
+                "clients": [
+                    {
+                        "id": "f500ecf5-e135-49c6-9ce2-78eb490d0ab9",
+                        "level": 1,
+                        "alterId": 64
+                    }
+                ]
+            }
+        },
+        {
+            "protocol": "shadowsocks",
+            "port": 444, // 监听 444 端口
+            "settings": {
+                "method": "aes-256-gcm",  // 加密方式
+                "password": "V2Ray",     // 密码，必须和客户端相同
+            }
+        }
+    ],
+    "outbound": {
+        "protocol": "freedom",
+        "settings": {}
+    },
+    "outboundDetour": [
+        {
+        "protocol": "blackhole",
+        "settings": {},
+        "tag": "blocked"
+        }
+    ],
+    "routing": {
+        "strategy": "rules",
+        "settings": {
+        "rules": [
+            {
+            "type": "field",
+            "ip": [
+                "0.0.0.0/8",
+                "10.0.0.0/8",
+                "100.64.0.0/10",
+                "127.0.0.0/8",
+                "169.254.0.0/16",
+                "172.16.0.0/12",
+                "192.0.0.0/24",
+                "192.0.2.0/24",
+                "192.168.0.0/16",
+                "198.18.0.0/15",
+                "198.51.100.0/24",
+                "203.0.113.0/24",
+                "::1/128",
+                "fc00::/7",
+                "fe80::/10"
+            ],
+            "outboundTag": "blocked"
+            }
+        ]
+        }
+    }
+}
+防火墙查看已开放端口
+firewall-cmd --zone=public --list-ports
+防火墙添加端口
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+windows客户端
+https://github.com/v2ray/v2ray-core/releases
+https://github.com/2dust/v2rayN/releases
+卸载V2Ray
+删除以下目录及文件
+/usr/bin/v2ray/
+/etc/v2ray/
+/var/log/v2ray/
+/etc/systemd/system/v2ray.service
+
+安装SSR
+1. 下载脚本
+wget -N --no-check-certificate https://y.zhulou.net/ssr.sh && chmod +x ssr.sh && bash ssr.sh
+或者
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh && chmod +x ssr.sh && bash ssr.sh
+2. 运行脚本
+bash ssr.sh
+3. 启动服务
+service ssr start|stop|restart|status

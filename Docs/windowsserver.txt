@@ -147,3 +147,19 @@ netsh winsock reset
 gpedit.msc
 Computer Configuration => Windows Settings => Security Settings => Network List Manager Policies
 Unidentified Networks (private)
+
+Open SSH
+以root身份连接8.8.8.8服务器, 端口号22
+ssh root@8.8.8.8 -p 22
+配置文件
+在用户目录下创建.ssh文件夹, 新建config文件
+Host XXX
+    HostName 8.8.8.8
+    User root
+    Port 22
+    IdentityFile ~/.ssh/id_file
+ServerAliveInterval 30
+ServerAliveCountMax 30
+然后使用
+ssh XXX
+连接
