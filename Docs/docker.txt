@@ -53,3 +53,6 @@ Ctrl + P, Ctrl + Q
 
 Docker 运行redis并启用密码
 docker run --name 容器名 -p 端口号:6379 -d --restart=always redis:latest redis-server --appendonly yes --requirepass "密码"
+
+Docker 运行tomcat 挂载容器并加入网络docker_net-mysql
+docker run --name server-tomcat -it --rm -p 8080:8080 -v ${PWD}/webapps/:/usr/local/tomcat/webapps --network docker_net-mysql -d tomcat:8.5.41-jre8-alpine
