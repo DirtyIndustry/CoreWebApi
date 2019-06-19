@@ -1,3 +1,6 @@
+﻿root password sIfS63eiQqPq
+SSH port 26295
+
 CentOS 7 安装LAMP
 1. 安装firewalld
 yum install firewalld
