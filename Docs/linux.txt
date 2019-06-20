@@ -109,11 +109,11 @@ yum install pcre-devel
 yum install zlib-devel
 
 2. 下载解压
-wget http://nginx.org/download/nginx-1.15.8.tar.gz
-tar -zxvf nginx-1.15.8.tar.gz
+wget http://nginx.org/download/nginx-1.16.0.tar.gz
+tar -zxvf nginx-1.16.0.tar.gz
 
 3. 安装
-cd nginx-1.15.8
+cd nginx-1.16.0
 设置安装目录为/usr/local/nginx
 ./configure --prefix=/usr/local/nginx
 编译安装
@@ -129,6 +129,7 @@ ps -ef | grep nginx
 Linux配置ssh使用key登录
 1. 生成密钥
 ssh-keygen -b 2048 -t rsa
+passphrase: mypassphrase
 生成的密钥文件在/root/.ssh/目录下
 id_rsa
 id_rsa.pub
@@ -250,3 +251,45 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 bash ssr.sh
 3. 启动服务
 service ssr start|stop|restart|status
+
+CentOS 7 安装JDK8
+1. 下载jdk-8u211-linux-x64.tar.gz
+2. 创建安装目录 mkdir /usr/local/java/
+3. 解压 tar -zxvf jdk-8u211-linux-x64.tar.gz -C /usr/local/java/
+4. 设置环境变量 vim /etc/profile
+在末尾添加
+export JAVA_HOME=/usr/local/java/jdk1.8.0_171
+export JRE_HOME=${JAVA_HOME}/jre
+export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+export PATH=${JAVA_HOME}/bin:$PATH
+5. 使环境变量生效 source /etc/profile
+6. 添加软链接 ln -s /usr/local/java/jdk1.8.0_171/bin/java /usr/bin/java
+7. 检查 java -version
+
+CentOS 7 安装Redis
+1. 安装 yum instal redis
+2. 启动 service redis start
+
+CentOS7 安装tomcat
+1. 切换目录 cd /usr/local/
+1. 下载 wget https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-9/v9.0.21/bin/apache-tomcat-9.0.21.tar.gz
+2. 解压 tar -zxvf apache-tomcat-9.0.21.tar.gz
+3. 删除压缩包 rm apache-tomcat-9.0.21.tar.gz
+4. 重命名文件夹 mv apache-tomcat-9.0.21 tomcat
+5. 配置服务 在/usr/lib/systemd/system/目录下增加tomcat.service文件
+[Unit]
+Description=Tomcat
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/tomcat/tomcat9/bin/startup.sh
+ExecStop=/usr/local/tomcat/tomcat9/bin/shutdown.sh
+ExecReload=/bin/kill -s HUP $MAINPID
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+
+6. 启动服务 systemctl start tomcat.service
+
